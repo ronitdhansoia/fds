@@ -465,6 +465,74 @@ def normalise_firm_type(value: str | None) -> str:
 REGRESSION_REFERENCE_FIRM_TYPE: Final[str] = "MTO"
 
 # ---------------------------------------------------------------------------
+# High-income region backfill
+# ---------------------------------------------------------------------------
+# The RPW Countries sheet leaves "Region" blank for high-income countries
+# (the World Bank reserves the field for developing-region classification).
+# We backfill from the UN M49 macro-regions so the dashboard has a region
+# label for every sender / receiver. Conservative scope: only countries the
+# panel actually contains as senders or in the GCC.
+
+REGION_BACKFILL: Final[dict[str, str]] = {
+    # North America
+    "USA": "Northern America",
+    "CAN": "Northern America",
+    # Western Europe
+    "DEU": "Western Europe",
+    "FRA": "Western Europe",
+    "NLD": "Western Europe",
+    "BEL": "Western Europe",
+    "AUT": "Western Europe",
+    "LUX": "Western Europe",
+    "CHE": "Western Europe",
+    # Northern Europe
+    "GBR": "Northern Europe",
+    "IRL": "Northern Europe",
+    "SWE": "Northern Europe",
+    "DNK": "Northern Europe",
+    "FIN": "Northern Europe",
+    "NOR": "Northern Europe",
+    "ISL": "Northern Europe",
+    "EST": "Northern Europe",
+    "LVA": "Northern Europe",
+    "LTU": "Northern Europe",
+    # Southern Europe
+    "ITA": "Southern Europe",
+    "ESP": "Southern Europe",
+    "PRT": "Southern Europe",
+    "GRC": "Southern Europe",
+    "MLT": "Southern Europe",
+    "CYP": "Southern Europe",
+    "HRV": "Southern Europe",
+    "SVN": "Southern Europe",
+    # Eastern Europe (high income)
+    "POL": "Eastern Europe",
+    "CZE": "Eastern Europe",
+    "SVK": "Eastern Europe",
+    "HUN": "Eastern Europe",
+    "BGR": "Eastern Europe",
+    "ROU": "Eastern Europe",
+    # Oceania
+    "AUS": "Oceania",
+    "NZL": "Oceania",
+    # East Asia
+    "JPN": "Eastern Asia",
+    "KOR": "Eastern Asia",
+    "HKG": "Eastern Asia",
+    # Southeast Asia
+    "SGP": "South-Eastern Asia",
+    # Western Asia (GCC + neighbours)
+    "ARE": "Western Asia",
+    "SAU": "Western Asia",
+    "KWT": "Western Asia",
+    "QAT": "Western Asia",
+    "OMN": "Western Asia",
+    "BHR": "Western Asia",
+    "ISR": "Western Asia",
+}
+
+
+# ---------------------------------------------------------------------------
 # Aesthetic tokens (mirrored on the dashboard side)
 # ---------------------------------------------------------------------------
 # Dashboard reads from tailwind.config.ts; this block keeps Python-generated

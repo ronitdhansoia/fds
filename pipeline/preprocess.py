@@ -92,6 +92,36 @@ def read_rpw_workbook(path: Path) -> pd.DataFrame:
     return raw
 
 
+def read_country_info(path: Path) -> pd.DataFrame:
+    """RPW ships a Countries sheet with clean region/income — use it to fix
+    the ".." sentinels that pollute source_region / destination_region in the
+    main panel.
+    """
+    df = pd.read_excel(path, sheet_name="Countries", header=1, engine="openpyxl")
+    df = df.rename(
+        columns={
+            "ISO 3166-1 alpha-3 country code": "code",
+            "Country name": "name",
+            "Region": "region",
+            "Income Group": "income",
+            "Lending category": "lending",
+            "G8/G20": "g8g20",
+        }
+    )
+    df = df[["code", "name", "region", "income"]].copy()
+    df["code"] = df["code"].astype(str).str.upper().str.strip()
+    for c in ("name", "region", "income"):
+        df[c] = (
+            df[c]
+            .astype(str)
+            .str.strip()
+            .replace({"..": None, "": None, "nan": None, "None": None})
+        )
+    df = df[df["code"].str.len() == 3]
+    logger.info("country info: %d rows", len(df))
+    return df
+
+
 # ---------------------------------------------------------------------------
 # Cleaning helpers
 # ---------------------------------------------------------------------------
@@ -199,6 +229,7 @@ def melt_amount_buckets(df: pd.DataFrame) -> pd.DataFrame:
 def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     config.ensure_dirs()
     raw = read_rpw_workbook(raw_path)
+    countries = read_country_info(raw_path)
     headers = list(raw.columns)
     resolved = resolve_columns(headers)
     logger.info("resolved %d/%d candidate columns", len(resolved), len(config.CANDIDATE_COLUMNS))
@@ -226,6 +257,37 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     df["corridor_id"] = df["source_code"] + "-" + df["destination_code"]
     df["firm"] = df["firm"].astype(str).str.strip()
     df["firm_type"] = normalise_firm_type_series(df["firm_type_raw"])
+
+    # Replace RPW ".." null sentinels in region/income with proper values
+    # from the workbook's Countries sheet (so USA gets "North America", etc.).
+    src_info = countries.rename(
+        columns={"name": "source_name_clean", "region": "source_region_clean", "income": "source_income_clean"}
+    )
+    dst_info = countries.rename(
+        columns={"name": "destination_name_clean", "region": "destination_region_clean", "income": "destination_income_clean"}
+    )
+    df = df.merge(src_info, left_on="source_code", right_on="code", how="left").drop(columns=["code"])
+    df = df.merge(dst_info, left_on="destination_code", right_on="code", how="left").drop(columns=["code"])
+
+    for stem in ("source", "destination"):
+        for field in ("name", "region", "income"):
+            raw_col, clean_col = f"{stem}_{field}", f"{stem}_{field}_clean"
+            if raw_col in df.columns and clean_col in df.columns:
+                # Prefer the clean lookup when present; fall back to raw with
+                # ".." stripped.
+                fallback = df[raw_col].astype(str).str.strip().replace(
+                    {"..": None, "": None, "nan": None, "None": None}
+                )
+                df[raw_col] = df[clean_col].fillna(fallback)
+                df = df.drop(columns=[clean_col])
+
+    # Backfill region for high-income countries the WB doesn't classify.
+    code_col = {"source": "source_code", "destination": "destination_code"}
+    for stem in ("source", "destination"):
+        col = f"{stem}_region"
+        if col in df.columns:
+            backfill = df[code_col[stem]].map(config.REGION_BACKFILL)
+            df[col] = df[col].fillna(backfill)
 
     # Speed -> days
     df["days_to_arrive"] = map_speed_to_days(df["transfer_speed_raw"])

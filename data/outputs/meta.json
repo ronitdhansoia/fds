@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-04-30T23:32:58+00:00",
+  "panel_first_period": "2016_2Q",
+  "panel_last_period": "2025_1Q",
+  "n_quarters": 36,
+  "n_corridors": 368,
+  "n_providers": 694,
+  "n_rows": 391797,
+  "send_amounts_usd": [
+    200,
+    500
+  ],
+  "headline_send_amount_usd": 200,
+  "kappa_pct_per_day": 0.1,
+  "weighting": "uniform",
+  "weighting_note": "Provider-level market shares are not exposed in the public Remittance Prices Worldwide release (verified 2026-04-30). Corridor-level TCI is the unweighted mean across providers; median is reported alongside as a robustness check.",
+  "data_source": {
+    "name": "World Bank \u2014 Remittance Prices Worldwide (RPW)",
+    "url": "https://remittanceprices.worldbank.org/",
+    "release_file": "https://datacatalogfiles.worldbank.org/ddh-published/0037898/DR0095523/rpw_dataset_2011_2025_q1.xlsx",
+    "retrieval_date": "2026-04-30",
+    "scope_note": "Modern sheet only ('Dataset (from Q2 2016)'). The legacy pre-2016 sheet ships an incompatible schema and is excluded from the headline analysis."
+  }
+}
