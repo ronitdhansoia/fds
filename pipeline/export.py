@@ -22,7 +22,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pipeline import config, stablecoin, tci
+from pipeline import aggregate, config, regression, stablecoin, tci
 
 logger = logging.getLogger(__name__)
 
@@ -389,6 +389,16 @@ def main(argv: list[str] | None = None) -> int:
     meta = build_meta(df, savings_summary=savings_summary)
     write_corridors_json(corridors, meta)
     write_meta_json(meta)
+
+    # Phase 4 outputs: regression + diaspora burden aggregation
+    if savings_table is not None:
+        burden_payload = aggregate.build_payload(savings_table)
+        aggregate.write_json(burden_payload)
+    else:
+        logger.warning("skipping diaspora_burden.json (no savings table)")
+
+    reg_results = regression.fit_all()
+    regression.write_regression_json(reg_results)
     return 0
 
 
