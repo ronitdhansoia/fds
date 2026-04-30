@@ -22,7 +22,7 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-from pipeline import config, tci
+from pipeline import config, stablecoin, tci
 
 logger = logging.getLogger(__name__)
 
@@ -154,8 +154,29 @@ def _corridor_identity(row: pd.Series) -> dict[str, Any]:
     }
 
 
-def build_corridor_payloads(panel: pd.DataFrame, providers: pd.DataFrame) -> list[dict[str, Any]]:
-    """One JSON object per corridor with per-amount metrics, history, providers."""
+def _stablecoin_payload(row: pd.Series) -> dict[str, Any]:
+    return {
+        "onramp_pct": _round(row.get("sc_onramp_pct"), 2),
+        "offramp_pct": _round(row.get("sc_offramp_pct"), 2),
+        "gas_pct": _round(row.get("sc_gas_pct")),
+        "fx_spread_pct": _round(row.get("sc_fx_spread_pct"), 2),
+        "total_pct": _round(row.get("sc_total_pct")),
+        "savings_pct": _round(row.get("savings_pct")),
+        "savings_pct_rolling_4q": _round(row.get("savings_pct_r4")),
+        "volume_year": _maybe_int(row.get("volume_year")),
+        "volume_usd_annual": _round(row.get("volume_usd_annual"), 0),
+        "savings_usd_annual": _round(row.get("savings_usd_annual"), 0),
+        "savings_usd_annual_rolling_4q": _round(row.get("savings_usd_annual_r4"), 0),
+    }
+
+
+def build_corridor_payloads(
+    panel: pd.DataFrame,
+    providers: pd.DataFrame,
+    savings: pd.DataFrame | None = None,
+) -> list[dict[str, Any]]:
+    """One JSON object per corridor with per-amount metrics, history, providers,
+    and (when supplied) the stablecoin counterfactual."""
     rolled = tci.rolling_4q_tci(panel)
     snapshot_idx = rolled.groupby(
         ["corridor_id", "send_amount_bucket_usd"], dropna=False
@@ -166,6 +187,11 @@ def build_corridor_payloads(panel: pd.DataFrame, providers: pd.DataFrame) -> lis
         (str(r["corridor_id"]), int(r["send_amount_bucket_usd"])): r
         for _, r in snap_full.iterrows()
     }
+
+    sc_by_key: dict[tuple[str, int], pd.Series] = {}
+    if savings is not None and not savings.empty:
+        for _, r in savings.iterrows():
+            sc_by_key[(str(r["corridor_id"]), int(r["send_amount_usd"]))] = r
 
     # group full quarterly history per (corridor × amount)
     history_groups = rolled.groupby(["corridor_id", "send_amount_bucket_usd"], dropna=False)
@@ -198,12 +224,16 @@ def build_corridor_payloads(panel: pd.DataFrame, providers: pd.DataFrame) -> lis
                 provs = provider_groups.get_group(key).sort_values("tci_pct")
             except KeyError:
                 provs = pd.DataFrame()
-            amounts[str(amount)] = {
+            amount_payload: dict[str, Any] = {
                 "current": _current_payload(row),
                 "rolling_4q": _rolling_payload(row),
                 "history": _history_payload(hist),
                 "providers": _provider_payload(provs),
             }
+            sc_row = sc_by_key.get((cid, amount))
+            if sc_row is not None:
+                amount_payload["stablecoin"] = _stablecoin_payload(sc_row)
+            amounts[str(amount)] = amount_payload
 
         if not amounts:
             continue
@@ -218,11 +248,13 @@ def build_corridor_payloads(panel: pd.DataFrame, providers: pd.DataFrame) -> lis
 # ---------------------------------------------------------------------------
 
 
-def build_meta(df: pd.DataFrame) -> dict[str, Any]:
+def build_meta(
+    df: pd.DataFrame, savings_summary: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Run-level metadata pinned to the loaded panel."""
     first = df.loc[df["period_dt"].idxmin()]
     last = df.loc[df["period_dt"].idxmax()]
-    return {
+    meta: dict[str, Any] = {
         "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "panel_first_period": _period_label(first["year"], first["quarter"]),
         "panel_last_period": _period_label(last["year"], last["quarter"]),
@@ -243,18 +275,64 @@ def build_meta(df: pd.DataFrame) -> dict[str, Any]:
             "Corridor-level TCI is the unweighted mean across providers; "
             "median is reported alongside as a robustness check."
         ),
-        "data_source": {
-            "name": "World Bank — Remittance Prices Worldwide (RPW)",
-            "url": "https://remittanceprices.worldbank.org/",
-            "release_file": config.RPW_PRIMARY_URL,
-            "retrieval_date": "2026-04-30",
-            "scope_note": (
-                "Modern sheet only ('Dataset (from Q2 2016)'). The legacy "
-                "pre-2016 sheet ships an incompatible schema and is "
-                "excluded from the headline analysis."
+        "stablecoin_assumptions": {
+            "gas_usd": config.STABLECOIN_GAS_USD,
+            "onramp_pct": {
+                "default": config.ONRAMP_DEFAULT_PCT,
+                "developed": config.ONRAMP_DEVELOPED_PCT,
+                "low_banked": config.ONRAMP_LOW_BANKED_PCT,
+                "developed_iso3": sorted(config.DEVELOPED_SENDERS_ISO3),
+                "low_banked_iso3": sorted(config.LOW_BANKED_SENDERS_ISO3),
+            },
+            "offramp_pct": {
+                "default": config.OFFRAMP_DEFAULT_PCT,
+                "top_p2p": config.OFFRAMP_TOP_P2P_PCT,
+                "thin_liquidity": config.OFFRAMP_THIN_LIQUIDITY_PCT,
+                "top_p2p_iso3": sorted(config.TOP_P2P_RECEIVERS_ISO3),
+                "thin_liquidity_iso3": sorted(config.THIN_LIQUIDITY_RECEIVERS_ISO3),
+            },
+            "fx_spread_pct": {
+                "deep": config.FX_SPREAD_DEEP_PCT,
+                "default": config.FX_SPREAD_DEFAULT_PCT,
+                "deep_iso3": sorted(config.DEEP_STABLECOIN_RECEIVERS_ISO3),
+            },
+            "note": (
+                "Conservative defaults. Reviewers will probe these — every "
+                "value is exposed in /methodology and the per-corridor "
+                "stablecoin block lists the actual percent applied."
             ),
         },
+        "data_sources": {
+            "rpw": {
+                "name": "World Bank — Remittance Prices Worldwide (RPW)",
+                "url": "https://remittanceprices.worldbank.org/",
+                "release_file": config.RPW_PRIMARY_URL,
+                "retrieval_date": "2026-04-30",
+                "scope_note": (
+                    "Modern sheet only ('Dataset (from Q2 2016)'). The legacy "
+                    "pre-2016 sheet ships an incompatible schema and is "
+                    "excluded from the headline analysis."
+                ),
+            },
+            "bilateral_remittance_matrix": {
+                "name": "World Bank / KNOMAD — Bilateral Remittance Estimates",
+                "indicator": "WB_KNOMAD_BRE",
+                "endpoint": config.BRM_API_URL,
+                "year": config.BRM_LATEST_YEAR,
+                "retrieval_date": "2026-04-30",
+                "unit": "USD millions",
+                "scope_note": (
+                    "Latest year available is 2021. We pair each RPW corridor "
+                    "with its 2021 BRM estimate to compute annual savings. "
+                    "Corridors absent from BRM contribute to percentage savings "
+                    "only and are excluded from USD totals."
+                ),
+            },
+        },
     }
+    if savings_summary:
+        meta["global_savings"] = savings_summary
+    return meta
 
 
 def write_corridors_json(
@@ -296,8 +374,19 @@ def main(argv: list[str] | None = None) -> int:
     panel = tci.corridor_period_tci(df)
     providers = tci.latest_provider_breakdown(df)
 
-    corridors = build_corridor_payloads(panel, providers)
-    meta = build_meta(df)
+    # Stablecoin counterfactual + bilateral volumes (Phase 3)
+    try:
+        savings_table, savings_summary = stablecoin.compute()
+    except FileNotFoundError as exc:
+        logger.warning(
+            "stablecoin compute skipped (%s) — corridors.json will not include "
+            "stablecoin block. Run `pipeline.ingest --only brm` first.",
+            exc,
+        )
+        savings_table, savings_summary = None, None
+
+    corridors = build_corridor_payloads(panel, providers, savings=savings_table)
+    meta = build_meta(df, savings_summary=savings_summary)
     write_corridors_json(corridors, meta)
     write_meta_json(meta)
     return 0

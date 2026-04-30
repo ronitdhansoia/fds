@@ -26,7 +26,9 @@ TABLES_DIR: Final[Path] = REPORT_DIR / "tables"
 DASHBOARD_PUBLIC_DATA_DIR: Final[Path] = PROJECT_ROOT / "dashboard" / "public" / "data"
 
 RAW_RPW_PATH: Final[Path] = RAW_DIR / "rpw_latest.xlsx"
+RAW_BRM_PATH: Final[Path] = RAW_DIR / "bilateral_remittances_2021.json"
 PROCESSED_RPW_PATH: Final[Path] = PROCESSED_DIR / "rpw_clean.parquet"
+PROCESSED_BRM_PATH: Final[Path] = PROCESSED_DIR / "bilateral_remittances.parquet"
 
 # Sheet name as exposed by the 2026-04 RPW release. The workbook ships two
 # data sheets — pre-Q2-2016 and Q2-2016-onward — with incompatible schemas.
@@ -64,6 +66,21 @@ RPW_FALLBACK_URL: Final[str] = (
     "https://remittanceprices.worldbank.org/sites/default/files/"
     "rpw_dataset_2011_2025_q1.xlsx"
 )
+
+# ---------------------------------------------------------------------------
+# Bilateral Remittance Matrix (KNOMAD / World Bank)
+# ---------------------------------------------------------------------------
+# Source: Data360 API exposing the WB_KNOMAD_BRE indicator. The legacy
+# direct-download xlsx (knomad.org/sites/default/files/2022-12/...)  was
+# retired in early 2025 and now redirects to a landing page; the API is
+# the canonical replacement. Latest year available: 2021 (verified
+# 2026-04-30). Schema: REF_AREA = source ISO3, COMP_BREAKDOWN_1 =
+# WB_KNOMAD_<dest_iso3>, OBS_VALUE in USD millions.
+BRM_API_URL: Final[str] = (
+    "https://data360api.worldbank.org/data360/data?"
+    "DATABASE_ID=WB_KNOMAD&INDICATOR=WB_KNOMAD_BRE"
+)
+BRM_LATEST_YEAR: Final[int] = 2021
 
 # Sheet-name fallbacks across releases — preprocess.py picks the first that exists.
 RPW_CANDIDATE_SHEETS: Final[tuple[str, ...]] = (

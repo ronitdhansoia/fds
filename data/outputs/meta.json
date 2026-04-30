@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-04-30T23:32:58+00:00",
+  "generated_at": "2026-04-30T23:42:13+00:00",
   "panel_first_period": "2016_2Q",
   "panel_last_period": "2025_1Q",
   "n_quarters": 36,
@@ -14,11 +14,133 @@
   "kappa_pct_per_day": 0.1,
   "weighting": "uniform",
   "weighting_note": "Provider-level market shares are not exposed in the public Remittance Prices Worldwide release (verified 2026-04-30). Corridor-level TCI is the unweighted mean across providers; median is reported alongside as a robustness check.",
-  "data_source": {
-    "name": "World Bank \u2014 Remittance Prices Worldwide (RPW)",
-    "url": "https://remittanceprices.worldbank.org/",
-    "release_file": "https://datacatalogfiles.worldbank.org/ddh-published/0037898/DR0095523/rpw_dataset_2011_2025_q1.xlsx",
-    "retrieval_date": "2026-04-30",
-    "scope_note": "Modern sheet only ('Dataset (from Q2 2016)'). The legacy pre-2016 sheet ships an incompatible schema and is excluded from the headline analysis."
+  "stablecoin_assumptions": {
+    "gas_usd": 0.5,
+    "onramp_pct": {
+      "default": 1.5,
+      "developed": 1.0,
+      "low_banked": 2.5,
+      "developed_iso3": [
+        "AUS",
+        "AUT",
+        "BEL",
+        "BGR",
+        "CAN",
+        "CHE",
+        "CYP",
+        "CZE",
+        "DEU",
+        "DNK",
+        "ESP",
+        "EST",
+        "FIN",
+        "FRA",
+        "GBR",
+        "GRC",
+        "HKG",
+        "HRV",
+        "HUN",
+        "IRL",
+        "ISL",
+        "ITA",
+        "JPN",
+        "KOR",
+        "LTU",
+        "LUX",
+        "LVA",
+        "MLT",
+        "NLD",
+        "NOR",
+        "NZL",
+        "POL",
+        "PRT",
+        "ROU",
+        "SGP",
+        "SVK",
+        "SVN",
+        "SWE",
+        "USA"
+      ],
+      "low_banked_iso3": [
+        "ARE",
+        "BHR",
+        "KWT",
+        "OMN",
+        "QAT",
+        "RUS",
+        "SAU",
+        "ZAF"
+      ]
+    },
+    "offramp_pct": {
+      "default": 2.5,
+      "top_p2p": 1.0,
+      "thin_liquidity": 4.0,
+      "top_p2p_iso3": [
+        "IND",
+        "MEX",
+        "NGA",
+        "PHL"
+      ],
+      "thin_liquidity_iso3": [
+        "AFG",
+        "CUB",
+        "ETH",
+        "MMR",
+        "PRK",
+        "SDN",
+        "SYR",
+        "VEN",
+        "YEM",
+        "ZWE"
+      ]
+    },
+    "fx_spread_pct": {
+      "deep": 0.5,
+      "default": 1.5,
+      "deep_iso3": [
+        "ARG",
+        "BRA",
+        "COL",
+        "GHA",
+        "IDN",
+        "IND",
+        "KEN",
+        "MEX",
+        "NGA",
+        "PHL",
+        "TUR",
+        "VNM"
+      ]
+    },
+    "note": "Conservative defaults. Reviewers will probe these \u2014 every value is exposed in /methodology and the per-corridor stablecoin block lists the actual percent applied."
+  },
+  "data_sources": {
+    "rpw": {
+      "name": "World Bank \u2014 Remittance Prices Worldwide (RPW)",
+      "url": "https://remittanceprices.worldbank.org/",
+      "release_file": "https://datacatalogfiles.worldbank.org/ddh-published/0037898/DR0095523/rpw_dataset_2011_2025_q1.xlsx",
+      "retrieval_date": "2026-04-30",
+      "scope_note": "Modern sheet only ('Dataset (from Q2 2016)'). The legacy pre-2016 sheet ships an incompatible schema and is excluded from the headline analysis."
+    },
+    "bilateral_remittance_matrix": {
+      "name": "World Bank / KNOMAD \u2014 Bilateral Remittance Estimates",
+      "indicator": "WB_KNOMAD_BRE",
+      "endpoint": "https://data360api.worldbank.org/data360/data?DATABASE_ID=WB_KNOMAD&INDICATOR=WB_KNOMAD_BRE",
+      "year": 2021,
+      "retrieval_date": "2026-04-30",
+      "unit": "USD millions",
+      "scope_note": "Latest year available is 2021. We pair each RPW corridor with its 2021 BRM estimate to compute annual savings. Corridors absent from BRM contribute to percentage savings only and are excluded from USD totals."
+    }
+  },
+  "global_savings": {
+    "send_amount_usd": 200,
+    "n_corridors_with_volume": 349,
+    "n_corridors_with_positive_savings": 200,
+    "total_corridor_volume_usd": 484135449869.0,
+    "total_savings_usd_annual_current": 5215451834.331984,
+    "total_savings_usd_annual_rolling4q": 5701643656.583644,
+    "implied_avg_savings_pct_current": 1.0772712131993658,
+    "volume_year": 2021
   }
 }

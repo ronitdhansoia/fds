@@ -1,20 +1,32 @@
-"""Download the latest World Bank Remittance Prices Worldwide xlsx.
+"""Download the latest source data: RPW xlsx + bilateral remittance matrix.
 
-Source: https://remittanceprices.worldbank.org/data-download
-Direct file URL discovered by inspecting the page network calls on
-**2026-04-30** — the catalog only exposes a single canonical file at a time
-even though the report covers multiple quarters. Both the World Bank Data
-Catalog CDN and the remittanceprices.worldbank.org `sites/default/files`
-mirror serve the same blob; primary URL is the catalog CDN since it ships
-ETag/Last-Modified headers we can use for caching.
+RPW (Remittance Prices Worldwide):
+    https://remittanceprices.worldbank.org/data-download
+    Direct file URL discovered by inspecting the page network calls on
+    **2026-04-30**. Both the World Bank Data Catalog CDN and the
+    remittanceprices.worldbank.org/sites/default/files mirror serve the
+    same blob; primary URL is the catalog CDN since it ships
+    ETag/Last-Modified headers we can use for caching.
+
+Bilateral Remittance Matrix (KNOMAD WB_KNOMAD_BRE):
+    The legacy direct-download xlsx at
+    knomad.org/sites/default/files/2022-12/bilateral_remittance_matrix_2021_0.xlsx
+    was retired in early 2025 and now 302-redirects to a landing page.
+    The Data360 API at data360api.worldbank.org/data360/data is the
+    canonical replacement. We page through it (1000 records per page,
+    ~11 pages for the full ~10.6k bilateral pairs) and persist the
+    flattened JSON to data/raw/bilateral_remittances_2021.json.
 
 Run as a module:
-    uv run python -m pipeline.ingest
+    uv run python -m pipeline.ingest                # both
+    uv run python -m pipeline.ingest --only rpw     # RPW only
+    uv run python -m pipeline.ingest --only brm     # BRM only
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import logging
 import sys
 from datetime import datetime, timezone
@@ -23,6 +35,9 @@ from pathlib import Path
 import requests
 
 from pipeline.config import (
+    BRM_API_URL,
+    BRM_LATEST_YEAR,
+    RAW_BRM_PATH,
     RAW_RPW_PATH,
     RPW_FALLBACK_URL,
     RPW_PRIMARY_URL,
@@ -92,8 +107,73 @@ def download_rpw(dest: Path = RAW_RPW_PATH, force: bool = False) -> Path:
     raise RuntimeError(f"all RPW download URLs failed: last error={last_err!r}")
 
 
+def download_bilateral_remittances(
+    dest: Path = RAW_BRM_PATH,
+    force: bool = False,
+    page_size: int = 1000,
+) -> Path:
+    """Page through the Data360 BRE indicator and dump the records to JSON.
+
+    The API caps each response at 1000 rows; a `nextLink` is not returned,
+    so we paginate via `$skip` until total records have been seen.
+    """
+    ensure_dirs()
+    if dest.exists() and not force:
+        size_kb = dest.stat().st_size / 1024
+        logger.info("BRM JSON already present at %s (%.0f KB) — skipping", dest, size_kb)
+        return dest
+
+    headers = {"User-Agent": USER_AGENT, "Accept": "application/json"}
+    records: list[dict] = []
+    skip = 0
+    total: int | None = None
+
+    while True:
+        url = f"{BRM_API_URL}&top={page_size}&skip={skip}"
+        logger.info("BRM page request: skip=%d", skip)
+        r = requests.get(url, headers=headers, timeout=HTTP_TIMEOUT_S)
+        r.raise_for_status()
+        payload = r.json()
+        if total is None:
+            total = int(payload.get("count", 0))
+            logger.info("BRM total records: %d", total)
+        page = payload.get("value", [])
+        if not page:
+            break
+        records.extend(page)
+        skip += len(page)
+        if total is not None and skip >= total:
+            break
+        if len(page) < page_size:
+            break
+
+    if total and len(records) != total:
+        logger.warning("BRM record count mismatch: expected %d got %d", total, len(records))
+
+    out = {
+        "indicator": "WB_KNOMAD_BRE",
+        "source": "data360api.worldbank.org",
+        "retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "latest_year": BRM_LATEST_YEAR,
+        "n_records": len(records),
+        "records": records,
+    }
+    tmp = dest.with_suffix(dest.suffix + ".part")
+    with tmp.open("w") as fh:
+        json.dump(out, fh, separators=(",", ":"))
+    tmp.replace(dest)
+    logger.info("wrote %s (%.0f KB, %d records)", dest, dest.stat().st_size / 1024, len(records))
+    return dest
+
+
 def _build_argparser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(description="Download the latest RPW xlsx.")
+    p = argparse.ArgumentParser(description="Download RPW xlsx + bilateral remittance matrix.")
+    p.add_argument(
+        "--only",
+        choices=["rpw", "brm", "both"],
+        default="both",
+        help="Which dataset to fetch (default: both).",
+    )
     p.add_argument("--force", action="store_true", help="re-download even if file exists")
     p.add_argument("-v", "--verbose", action="store_true")
     return p
@@ -105,7 +185,10 @@ def main(argv: list[str] | None = None) -> int:
         level=logging.DEBUG if args.verbose else logging.INFO,
         format="%(asctime)s %(levelname)-7s %(name)s: %(message)s",
     )
-    download_rpw(force=args.force)
+    if args.only in ("rpw", "both"):
+        download_rpw(force=args.force)
+    if args.only in ("brm", "both"):
+        download_bilateral_remittances(force=args.force)
     return 0
 
 
