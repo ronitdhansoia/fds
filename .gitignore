@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# uv
+# uv.lock is committed; cache dirs are not
+.uv/
+
+# Data
+data/raw/
+data/processed/
+# data/outputs/ is committed (small JSON, consumed by dashboard)
+
+# Node / Next
+node_modules/
+.next/
+.turbo/
+dashboard/public/data/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Reports — figures committed, scratch PDFs not
+report/figures/.tmp/
+*.aux
+*.log
+
+# Env
+.env
+.env.local

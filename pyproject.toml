@@ -1,0 +1,51 @@
+[project]
+name = "migrantmoney"
+version = "0.1.0"
+description = "True Cost Index + stablecoin counterfactual for cross-border remittances."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "Ronit Dhansoia" }]
+license = { text = "MIT" }
+
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "pyarrow>=15.0",
+    "openpyxl>=3.1",        # xlsx reader for RPW source files
+    "requests>=2.31",       # ingest.py downloads the RPW xlsx
+    "statsmodels>=0.14",    # operator-class regression
+    "linearmodels>=6.0",    # PanelOLS with two-way FE + clustered SE
+    "plotly>=5.20",         # report figures
+    "kaleido==0.2.1",       # plotly -> static PNG export
+    "pydantic>=2.6",        # canonical schema
+    "tqdm>=4.66",           # progress bars
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.4",
+    "black>=24.3",
+    "jupyter>=1.0",
+    "ipykernel>=6.29",
+    "matplotlib>=3.8",      # used by the EDA notebook only
+    "seaborn>=0.13",        # missingness heatmap in EDA notebook
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "B", "UP"]
+ignore = ["E501"]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.uv]
+package = false
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
