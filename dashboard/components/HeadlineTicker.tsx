@@ -3,6 +3,8 @@
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
+import { fmtUsdCompact } from "@/lib/format";
+
 export interface TickerItem {
   /** Region of the source country, uppercased — e.g. "SUB-SAHARAN AFRICA" */
   region: string;
@@ -65,7 +67,7 @@ export function HeadlineTicker({ items, intervalMs = 5000 }: HeadlineTickerProps
           <Sep />
           <span className="text-text-2">{cur.tci_pct.toFixed(1)}% true cost</span>
           <Sep />
-          <span className="text-accent-2">{formatSavings(cur.savings_usd)} savable</span>
+          <span className="text-accent-2">{fmtUsdCompact(cur.savings_usd)} savable</span>
         </motion.span>
       </AnimatePresence>
     </div>
@@ -74,12 +76,4 @@ export function HeadlineTicker({ items, intervalMs = 5000 }: HeadlineTickerProps
 
 function Sep() {
   return <span className="text-text-3" aria-hidden>·</span>;
-}
-
-function formatSavings(usd: number): string {
-  if (!usd || !Number.isFinite(usd)) return "$0";
-  if (usd >= 1e9) return `$${(usd / 1e9).toFixed(usd >= 10e9 ? 0 : 1)} B`;
-  if (usd >= 1e6) return `$${(usd / 1e6).toFixed(usd >= 100e6 ? 0 : 1)} M`;
-  if (usd >= 1e3) return `$${(usd / 1e3).toFixed(0)} K`;
-  return `$${usd.toFixed(0)}`;
 }

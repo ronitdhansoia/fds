@@ -55,14 +55,17 @@ export default async function HomePage() {
         <div className="hero-shadow pointer-events-none absolute inset-x-0 bottom-0 top-1/2 -z-[1]" aria-hidden />
 
         <div className="mx-auto grid max-w-[1280px] grid-cols-12 gap-6 px-6 pt-32 pb-32">
-          <div className="col-span-12 lg:col-span-2">
+          <div className="col-span-12 lg:col-span-3">
             <RevealItem order={0}>
-              <div className="overline">
-                FDS · BITS Pilani Dubai · Data as of {dataPeriodHuman}
+              <div className="overline whitespace-nowrap">
+                FDS · BITS Pilani Dubai
+              </div>
+              <div className="overline mt-1 whitespace-nowrap text-text-3">
+                Data as of {dataPeriodHuman}
               </div>
             </RevealItem>
           </div>
-          <div className="col-span-12 lg:col-span-10">
+          <div className="col-span-12 lg:col-span-9">
             <RevealItem order={1}>
               <h1 className="font-display text-section md:text-display leading-[1.05] tracking-[-0.025em] text-text balance">
                 Migrants paid roughly{" "}

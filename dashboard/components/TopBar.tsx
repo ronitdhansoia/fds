@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function TopBar({ active }: { active?: "home" | "methodology" | "explorer" }) {
   return (
-    <div className="sticky top-0 z-30 border-b border-border bg-bg/80 backdrop-blur-sm">
+    <div className="sticky top-0 z-30 border-b border-border bg-bg">
       <div className="mx-auto flex h-12 max-w-[1280px] items-center justify-between px-6">
         <Link
           href="/"

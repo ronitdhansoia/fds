@@ -228,12 +228,13 @@ export function SensitivitySliders({
     const pipelineSavings = defaults.pipeline_savings_usd;
     if (!pipelineSavings) return;
     const gapPct = Math.abs(baseline.total - pipelineSavings) / pipelineSavings;
-    if (gapPct > 0.001) {
+    if (gapPct > 0.001 && process.env.NODE_ENV === "development") {
+      // Diagnostic only — the gap is a documented design decision (flat
+      // sliders vs tiered pipeline). Don't pollute the prod console.
       // eslint-disable-next-line no-console
-      console.warn(
+      console.debug(
         `[SensitivitySliders] flat defaults give $${(baseline.total / 1e9).toFixed(2)}B vs ` +
-          `pipeline-precise $${(pipelineSavings / 1e9).toFixed(2)}B — gap ${(gapPct * 100).toFixed(1)}%. ` +
-          `This is expected: the pipeline uses per-country tiered defaults, the slider applies a flat scenario.`,
+          `pipeline-precise $${(pipelineSavings / 1e9).toFixed(2)}B — gap ${(gapPct * 100).toFixed(1)}%.`,
       );
     }
   }, [baseline.total, defaults.pipeline_savings_usd]);

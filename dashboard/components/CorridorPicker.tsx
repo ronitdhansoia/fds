@@ -50,8 +50,9 @@ export function CorridorPicker({
   const dstOptions = useMemo(() => destinationsBySource[src] ?? [], [destinationsBySource, src]);
 
   return (
-    <div className="border-y border-border bg-bg/85 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-[1280px] items-center gap-6 px-6 py-4">
+    <div className="sticky top-12 z-20 border-y border-border bg-bg">
+      {/* Desktop / tablet: single horizontal row */}
+      <div className="mx-auto hidden md:flex max-w-[1280px] items-center gap-6 px-6 py-4">
         <Slot label="Send from">
           <Select value={src} onChange={setSrc} options={senders} />
         </Slot>
@@ -64,13 +65,29 @@ export function CorridorPicker({
           <AmountToggle value={amt} onChange={setAmt} />
         </div>
       </div>
+
+      {/* Mobile: stacked rows separated by hairlines so each slot has room */}
+      <div className="md:hidden">
+        <div className="border-b border-border px-6 py-3">
+          <div className="overline mb-1">Send from</div>
+          <Select value={src} onChange={setSrc} options={senders} />
+        </div>
+        <div className="border-b border-border px-6 py-3">
+          <div className="overline mb-1">Send to</div>
+          <Select value={dst} onChange={setDst} options={dstOptions} />
+        </div>
+        <div className="flex items-center justify-between px-6 py-3">
+          <span className="overline">Amount</span>
+          <AmountToggle value={amt} onChange={setAmt} />
+        </div>
+      </div>
     </div>
   );
 }
 
 function Slot({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-baseline gap-3">
+    <div className="flex items-baseline gap-3 min-w-0">
       <span className="overline whitespace-nowrap">{label}</span>
       {children}
     </div>
@@ -136,7 +153,7 @@ function Select({
         </span>
       </button>
       {open ? (
-        <div className="absolute left-0 top-[calc(100%+0.5rem)] z-50 max-h-72 w-72 overflow-hidden rounded-[2px] border border-border-hi bg-surface shadow-[0_0_0_1px_rgba(0,0,0,0.6)]">
+        <div className="absolute left-0 top-[calc(100%+0.5rem)] z-50 max-h-72 w-72 overflow-hidden rounded-[2px] border border-border-hi bg-surface">
           <input
             ref={inputRef}
             type="text"

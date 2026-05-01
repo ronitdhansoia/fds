@@ -109,7 +109,13 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
               <>
                 {" "}— or as little as{" "}
                 <span className="text-text num">{fmtPct(cheapest.tci_pct, 2)}</span>{" "}
-                via <span className="text-text">{cheapest.firm}</span>
+                via{" "}
+                <a
+                  href="#providers"
+                  className="text-text underline underline-offset-[6px] decoration-text-3 decoration-1 hover:decoration-text transition-colors"
+                >
+                  {cheapest.firm}
+                </a>
               </>
             ) : null}
             {sc?.total_pct !== undefined ? (
@@ -179,9 +185,11 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
             <span className="text-text-3">Ranked by TCI.</span>
           </>
         }
-        className="mt-32"
+        className="mt-32 scroll-mt-24"
       >
-        <ProviderList providers={bucket.providers} />
+        <div id="providers" className="scroll-mt-24">
+          <ProviderList providers={bucket.providers} />
+        </div>
       </Section>
 
       {/* ----------------------------------------------------------------- */}
