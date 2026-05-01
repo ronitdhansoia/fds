@@ -552,6 +552,212 @@ def render_all(out_dir: Path = config.FIGURES_DIR) -> None:
     fig_operator_forest(reg_models, out_dir / "fig03_operator_forest.png")
     fig_savings_scatter(savings, out_dir / "fig04_stablecoin_scatter.png")
     fig_diaspora_burden(senders, out_dir / "fig05_diaspora_burden.png")
+    fig_block_diagram(out_dir / "fig06_block_diagram.png")
+    make_tci_distribution_figure(snap, out_dir / "tci_distribution.png")
+
+
+# ---------------------------------------------------------------------------
+# §3 dataset distribution figure — corridor-level TCI histogram with
+# vertical hairlines at the SDG 10.c 3% target and the panel global mean.
+# ---------------------------------------------------------------------------
+
+
+def make_tci_distribution_figure(snapshot: pd.DataFrame, out: Path,
+                                  send_amount_usd: int = 200,
+                                  sdg_target_pct: float = 3.0,
+                                  global_mean_pct: float = 5.00) -> None:
+    """Histogram of corridor-level mean TCI at the headline send amount.
+
+    Hairlines mark the SDG 10.c target (3%) and the panel volume-weighted
+    global mean (5.00%, computed once from diaspora_burden.json and passed
+    in so the figure does not have to re-aggregate volume × TCI here).
+    """
+    sub = snapshot[snapshot["send_amount_bucket_usd"] == send_amount_usd].copy()
+    tcis = sub["tci_pct_mean"].astype(float).dropna()
+
+    # Cap the right tail visually at 30% — ~25 outliers above clutter the
+    # histogram. We mark the cap with an annotation so the reader knows.
+    cap = 30.0
+    over = int((tcis > cap).sum())
+    binned = tcis.clip(upper=cap)
+
+    fig = go.Figure()
+    fig.add_trace(go.Histogram(
+        x=binned,
+        xbins=dict(start=0, end=cap, size=cap / 30),
+        marker=dict(color=COLOR_FEE, line=dict(width=0)),
+        hovertemplate="TCI bucket: %{x:.1f}%<br>n corridors: %{y}<extra></extra>",
+    ))
+
+    # Vertical hairlines
+    fig.add_shape(
+        type="line", x0=sdg_target_pct, x1=sdg_target_pct, y0=0, y1=1,
+        xref="x", yref="paper",
+        line=dict(color=COLOR_AXIS, width=1.2, dash="dash"),
+    )
+    fig.add_annotation(
+        x=sdg_target_pct, y=1, xref="x", yref="paper",
+        text=f"SDG 10.c target<br>{sdg_target_pct:.0f}%",
+        showarrow=False, xanchor="left", yanchor="top",
+        font=dict(family=FONT_MONO, size=11, color=COLOR_AXIS),
+        xshift=6, yshift=-6,
+    )
+    fig.add_shape(
+        type="line", x0=global_mean_pct, x1=global_mean_pct, y0=0, y1=1,
+        xref="x", yref="paper",
+        line=dict(color=config.COLOR_TEXT, width=1.2),
+    )
+    fig.add_annotation(
+        x=global_mean_pct, y=1, xref="x", yref="paper",
+        text=f"global mean<br>{global_mean_pct:.2f}%",
+        showarrow=False, xanchor="left", yanchor="top",
+        font=dict(family=FONT_MONO, size=11, color=config.COLOR_TEXT),
+        xshift=6, yshift=-46,
+    )
+
+    if over > 0:
+        fig.add_annotation(
+            x=cap, y=0, xref="x", yref="paper",
+            text=f"+ {over} corridors above {int(cap)}%",
+            showarrow=False, xanchor="right", yanchor="bottom",
+            font=dict(family=FONT_MONO, size=11, color=COLOR_AXIS),
+            xshift=-6, yshift=18,
+        )
+
+    layout = _layout(
+        title="Distribution of corridor-level TCI",
+        subtitle=(
+            f"USD {send_amount_usd}, 2025 Q1, "
+            f"corridor mean across providers ({len(tcis)} corridors)"
+        ),
+        xaxis_title="True Cost Index, % of send amount",
+        yaxis_title="Corridors",
+        margin_l=100, margin_r=80,
+        height=620,
+    )
+    layout["xaxis"]["range"] = [0, cap]
+    layout["bargap"] = 0.05
+    fig.update_layout(**layout)
+    _save(fig, out)
+
+
+# ---------------------------------------------------------------------------
+# Fig 6: Block diagram — data flow architecture
+# ---------------------------------------------------------------------------
+
+
+def fig_block_diagram(out: Path) -> None:
+    """Architecture sketch — boxes-and-arrows of the data flow.
+
+    Drawn directly with Plotly shapes/annotations so it lives in the same
+    rendering pipeline as the data figures. Three rows: sources → pipeline
+    stages → outputs.
+    """
+    fig = go.Figure()
+
+    # canvas
+    W, H = 1600, 900
+    fig.update_layout(
+        width=W, height=H,
+        paper_bgcolor=config.COLOR_BG,
+        plot_bgcolor=config.COLOR_BG,
+        xaxis=dict(visible=False, range=[0, 100]),
+        yaxis=dict(visible=False, range=[0, 100]),
+        margin=dict(l=0, r=0, t=130, b=40),
+        title=dict(
+            text=(
+                f"<span style='font-family:{FONT_SERIF};font-size:30px;color:"
+                f"{config.COLOR_TEXT}'>System architecture</span>"
+                f"<br><span style='font-family:{FONT_SANS};font-size:14px;color:"
+                f"{COLOR_AXIS}'>Data flow from World Bank panels → static JSON → editorial dashboard</span>"
+            ),
+            x=0.04, xanchor="left", y=0.96, yanchor="top",
+        ),
+    )
+
+    def box(x, y, w, h, label, sub=None, fill="#161616", border=COLOR_AXIS, label_color=config.COLOR_TEXT, font_size=18):
+        fig.add_shape(
+            type="rect", x0=x, y0=y, x1=x + w, y1=y + h,
+            line=dict(color=border, width=1),
+            fillcolor=fill, layer="below",
+        )
+        cy = y + h * 0.62 if sub else y + h * 0.5
+        fig.add_annotation(
+            x=x + w/2, y=cy, text=label,
+            showarrow=False, xanchor="center", yanchor="middle",
+            font=dict(family=FONT_SERIF, size=font_size, color=label_color),
+        )
+        if sub:
+            fig.add_annotation(
+                x=x + w/2, y=y + h * 0.30, text=sub,
+                showarrow=False, xanchor="center", yanchor="middle",
+                font=dict(family=FONT_MONO, size=11, color=COLOR_AXIS),
+            )
+
+    def arrow(x0, y0, x1, y1, color=None):
+        fig.add_annotation(
+            x=x1, y=y1, ax=x0, ay=y0,
+            xref="x", yref="y", axref="x", ayref="y",
+            showarrow=True, arrowhead=2, arrowsize=1, arrowwidth=1,
+            arrowcolor=color or COLOR_AXIS, text="",
+        )
+
+    # Row 1 — sources
+    box(8, 75, 26, 14, "World Bank RPW", "rpw_dataset_2011_2025_q1.xlsx", fill="#1a1206")
+    box(38, 75, 26, 14, "KNOMAD BRE",   "Data360 API · 2021 bilateral",  fill="#1a1206")
+    box(68, 75, 24, 14, "WB Country lookup", "M49 + ISO3 + region",      fill="#1a1206")
+
+    # Row 2 — pipeline stages
+    box(4,  50, 18, 13, "ingest",      "pipeline/ingest.py")
+    box(24, 50, 18, 13, "preprocess",  "schema sniff · cc1/cc2 melt", fill="#211408")
+    box(44, 50, 18, 13, "TCI",         "fee + fxMargin + κ·max(0,d-1)", fill="#211408",
+        border=COLOR_FEE, label_color=COLOR_FEE)
+    box(64, 50, 18, 13, "stablecoin",  "on/off-ramp + gas + fxSpread", fill="#1a2008",
+        border="#65A30D", label_color="#65A30D")
+    box(84, 50, 14, 13, "regression",  "two-way FE", fill="#211408")
+
+    box(20, 32, 22, 11, "aggregate",   "diaspora burden · rankings", fill="#161616")
+    box(50, 32, 22, 11, "export",      "round · null-safe JSON",     fill="#161616")
+    box(80, 32, 14, 11, "figures",     "Plotly · 300 DPI",            fill="#161616")
+
+    # Row 3 — outputs
+    box(4, 12, 22, 13, "rpw_clean.parquet", "data/processed/", fill="#0d0d0d", font_size=14)
+    box(28, 12, 22, 13, "corridors.json",   "5.7 MB · 368 corridors", fill="#0d0d0d", font_size=14)
+    box(52, 12, 22, 13, "diaspora_burden.json", "108 KB · senders/receivers", fill="#0d0d0d", font_size=14)
+    box(76, 12, 22, 13, "operator_regression.json", "5.9 KB · models", fill="#0d0d0d", font_size=14)
+
+    # Arrows — sources to stages
+    arrow(21, 75, 13, 63)        # RPW → ingest
+    arrow(21, 75, 33, 63)        # RPW → preprocess
+    arrow(51, 75, 53, 63)        # KNOMAD → TCI/stablecoin upstream
+    arrow(51, 75, 73, 63)
+    arrow(80, 75, 33, 63)        # countries → preprocess
+
+    # Arrows between stages (left to right)
+    for x_start, x_end in [(22, 24), (42, 44), (62, 64), (82, 84)]:
+        arrow(x_start, 56.5, x_end, 56.5)
+
+    # Down-arrows to row 3
+    arrow(33, 50, 33, 25)        # preprocess → parquet
+    arrow(53, 32, 39, 25)        # aggregate → corridors
+    arrow(61, 32, 63, 25)        # export → diaspora
+    arrow(91, 32, 87, 25)        # figures → reg + report figures
+
+    # Down arrow from row 2 to row 2.5 (aggregations stripe)
+    arrow(53, 50, 31, 43)        # TCI → aggregate
+    arrow(73, 50, 53, 43)        # stablecoin → aggregate
+    arrow(73, 50, 61, 43)        # stablecoin → export
+    arrow(91, 50, 87, 43)        # regression → figures
+
+    # Bottom: arrow from outputs into a dashboard rectangle
+    box(28, 0, 70, 7, "dashboard/public/data/  ⇒  Next.js · Tailwind v4 · Fraunces · Geist", None,
+        fill="#0a0a0a", border=COLOR_FEE, label_color=COLOR_FEE, font_size=14)
+    arrow(39, 12, 39, 7)
+    arrow(63, 12, 63, 7)
+    arrow(87, 12, 87, 7)
+
+    fig.update_layout(showlegend=False)
+    _save(fig, out)
 
 
 def main(argv: list[str] | None = None) -> int:

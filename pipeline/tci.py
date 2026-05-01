@@ -212,6 +212,97 @@ def print_top_n(snapshot: pd.DataFrame, send_amount_usd: int = 200, n: int = 20)
 # ---------------------------------------------------------------------------
 
 
+def extreme_corridor_robustness(
+    df: pd.DataFrame,
+    snapshot: pd.DataFrame,
+    send_amount_usd: int = 200,
+    top_n: int = 5,
+    min_providers: int = 3,
+) -> list[dict[str, object]]:
+    """For each of the top-N corridors by mean TCI, compute robustness checks.
+
+    Returns one dict per corridor with:
+      - mean_tci, median_tci, n_providers
+      - mean_excl_max: mean recomputed after dropping the single highest-TCI
+        provider (a one-out trim).
+      - rank_by_mean, rank_by_median, rank_by_excl_max — index in the top-20
+        ranking under each aggregation alternative; corridor_ordering_unchanged
+        is True if all three rankings keep the corridor in top 10.
+
+    The point is to demonstrate that the headline ordering is not driven by a
+    single high-cost provider in a thin sample.
+    """
+    head = top_n_expensive(snapshot, send_amount_usd=send_amount_usd,
+                           n=top_n, min_providers=min_providers)
+    target_ids = head["corridor_id"].tolist()
+    if not target_ids:
+        return []
+
+    # Latest-period per-provider rows for the same send-amount bucket.
+    sub = df[df["send_amount_bucket_usd"] == send_amount_usd].copy()
+    latest = sub["period_dt"].max()
+    rows = sub[sub["period_dt"] == latest]
+
+    # Helper: compute the three aggregation alternatives at corridor level
+    # for *every* corridor, then look up the ranks for our targets.
+    def _agg_alts(grp: pd.DataFrame) -> pd.Series:
+        n = grp["firm"].nunique()
+        if n < min_providers:
+            return pd.Series(
+                {"mean_tci": np.nan, "median_tci": np.nan,
+                 "mean_excl_max": np.nan, "n_providers": n}
+            )
+        tci = grp["tci_pct"].dropna()
+        if len(tci) == 0:
+            return pd.Series(
+                {"mean_tci": np.nan, "median_tci": np.nan,
+                 "mean_excl_max": np.nan, "n_providers": n}
+            )
+        mx = tci.idxmax()
+        excl = tci.drop(mx)
+        return pd.Series({
+            "mean_tci": float(tci.mean()),
+            "median_tci": float(tci.median()),
+            "mean_excl_max": float(excl.mean()) if len(excl) else float(tci.mean()),
+            "n_providers": int(n),
+        })
+
+    alts = (
+        rows.groupby(["corridor_id", "source_name", "destination_name"])
+        .apply(_agg_alts, include_groups=False)
+        .reset_index()
+    )
+    alts = alts[alts["mean_tci"].notna()].copy()
+    alts["rank_by_mean"] = alts["mean_tci"].rank(method="min", ascending=False).astype(int)
+    alts["rank_by_median"] = alts["median_tci"].rank(method="min", ascending=False).astype(int)
+    alts["rank_by_excl_max"] = alts["mean_excl_max"].rank(method="min", ascending=False).astype(int)
+
+    out: list[dict[str, object]] = []
+    for cid in target_ids:
+        row = alts[alts["corridor_id"] == cid]
+        if row.empty:
+            continue
+        r = row.iloc[0]
+        out.append({
+            "corridor_id": str(r["corridor_id"]),
+            "source_name": str(r["source_name"]),
+            "destination_name": str(r["destination_name"]),
+            "n_providers": int(r["n_providers"]),
+            "mean_tci_pct": round(float(r["mean_tci"]), 4),
+            "median_tci_pct": round(float(r["median_tci"]), 4),
+            "mean_excl_max_provider_pct": round(float(r["mean_excl_max"]), 4),
+            "rank_by_mean": int(r["rank_by_mean"]),
+            "rank_by_median": int(r["rank_by_median"]),
+            "rank_by_excl_max": int(r["rank_by_excl_max"]),
+            "stays_in_top_10_under_all_three": bool(
+                r["rank_by_mean"] <= 10
+                and r["rank_by_median"] <= 10
+                and r["rank_by_excl_max"] <= 10
+            ),
+        })
+    return out
+
+
 def latest_provider_breakdown(df: pd.DataFrame) -> pd.DataFrame:
     """For each corridor × send_amount, the latest-quarter per-provider rows."""
     cols = [
