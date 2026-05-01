@@ -255,3 +255,114 @@ Significant refactor; not worth this round.
 Do P0s first, rebuild, screenshot, commit each. Then P1s. Stop before P2.
 
 ---
+
+## Resolution Summary
+
+- **P0 fixed: 3 / 3**
+  1. Geist Mono prose kerning → `.num` re-routed to Geist Sans + tabular
+     figures. Commit `1b41a7e`.
+  2. `backdrop-blur-sm` glassmorphism on TopBar + CorridorPicker → solid
+     `bg-bg` with hairline borders. Commit `0fa24c3`.
+  3. Corridor explorer top bar overflowed at 390 px → mobile-stack
+     layout (SEND FROM / SEND TO / Amount each on own row, hairline-
+     separated). Commit `0fa24c3`.
+
+- **P1 fixed: 5 / 5**
+  4. Hero overline wrap on 1920 wide viewports → widened left rail to
+     `lg:col-span-3` and split into two deliberate lines. Commit
+     `0fa24c3`.
+  5. SensitivitySliders log spam in prod console → demoted to
+     `console.debug` and gated on `NODE_ENV === 'development'`. Commit
+     `0fa24c3`.
+  6. Combobox dropdown inset 1 px shadow → removed. Commit `0fa24c3`.
+  7. Ticker had its own `formatSavings()` → routed through
+     `lib/format.ts::fmtUsdCompact` for consistent compact USD across
+     the dashboard. Commit `0fa24c3`.
+  8. Cheapest provider mention in headline was plain text → wrapped in
+     an in-page anchor to `#providers` with subtle decoration that
+     lifts on hover. Commit `0fa24c3`.
+
+- **P2 deferred (3):**
+  - Hero number breaking the headline rhythm at 1440 px — defensible
+    and matches the "hero number on the same baseline" spec.
+  - Distribution histogram dominated by zero-savings bin under
+    conservative defaults — coverage line above the chart already
+    surfaces the zero count.
+  - View transition on corridor switch — defer until React 19.2's
+    `ViewTransition` settles in Next 16. Significant refactor.
+
+- **Commits:**
+  - `1b41a7e` fix(critique-p0/1): drop Geist Mono from inline prose numerics
+  - `0fa24c3` fix(critique-p0/2/3 + p1): glassmorphism, mobile picker, overline wrap, ticker, sensitivity log
+
+- **Final preview URL:** local prod build at `http://localhost:3002`;
+  Vercel deploy still requires `vercel login` (interactive auth).
+
+---
+
+## Before / After Highlights
+
+### 1. Inline prose numerics — the single biggest visual fix
+
+**Before** (round-1, corridor 1440):
+`screenshots/round-1/corridor-1440.png`
+
+> "Sending **$200** from United States to Mexico costs on average **5 . 18%** — or as little as **1 . 29%** via Walmart2World. Stablecoin rails would cost **2 . 75%**."
+
+The Geist Mono cell width pads every period and percent sign, and the headline reads as glitchy spacing rather than editorial typography.
+
+**After** (final, corridor 1440):
+`screenshots/final/corridor-1440.png`
+
+> "Sending **$200** from United States to Mexico costs on average **5.18%** — or as little as **1.29%** via Walmart2World. Stablecoin rails would cost **2.75%**."
+
+Periods sit tight to digits, the sentence reads as a single editorial statement, the colour accents on the percentages now register as emphasis instead of as gap-bridging.
+
+### 2. Mobile corridor explorer — usable instead of broken
+
+**Before** (round-1, corridor 390):
+`screenshots/round-1/corridor-390.png`
+
+The top bar crushes "SEND FROM United States USA → SEND TO Mexico" onto a single overflowed row; the amount toggle is clipped off the viewport. Country labels truncate. Page is essentially unusable on a phone.
+
+**After** (fix screenshot, corridor 390):
+`screenshots/fixes/p0-3-corridor-mobile-after.png`
+
+Each picker slot stacks vertically, separated by hairlines: SEND FROM / United States · USA, SEND TO / Mexico · MEX, AMOUNT / $200 · $500. Country names render in full. Amount toggle is reachable. The headline sentence below picks up the prose-numeric fix automatically: "5.18%", "1.29%", "2.75%" all clean.
+
+### 3. Hero overline at wide viewports — one ragged sentence becomes two confident lines
+
+**Before** (round-1, home 1920):
+`screenshots/round-1/home-1920.png`
+
+The 2-column left rail forced the overline to wrap mid-word:
+```
+FDS · BITS PILANI
+DUBAI · DATA AS OF
+2025 Q1
+```
+
+**After** (final, home 1440):
+`screenshots/final/home-1440.png`
+
+Rail widened to 3 columns, the overline split into two deliberate lines:
+```
+FDS · BITS PILANI DUBAI
+DATA AS OF 2025 Q1
+```
+
+The data-period line is in `--text-3` so it reads as a sub-line of the institutional credit, not a separate fact competing with it.
+
+---
+
+## Self-honesty pass — second look
+
+Three things I deliberately left as P2 that a reviewer might still flag:
+
+1. The hero number's vertical positioning — at 1440 px wide it sits *to the right of* "Migrants paid roughly," forcing the rest of "last year to move their own money." onto a second line of equal weight. I argued this is the editorial composition working; a senior designer might disagree and want the hero number on its own line beneath a smaller framing sentence.
+
+2. The KPI quad on the home page still uses Geist Mono ("$5.22 B" rendering as "$5 . 22 B" within the small KPI block). I justified keeping mono there because the four KPIs are vertically aligned and the tabular alignment matters more than the period gap. Borderline.
+
+3. The corridor picker on desktop is still a single horizontal row — I made it stack only below `md`. At 1440 it's fine, but the SEND FROM / SEND TO labels are quite small and the combobox affordance (the underline below the country name) is the only visual signal that this is interactive. A more confident treatment would size up the picker or make the slots feel more like buttons.
+
+If the user critique mentions any of these, address in a Round 2 pass.
