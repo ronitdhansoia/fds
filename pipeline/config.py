@@ -1,7 +1,7 @@
 """Project-wide constants, file paths, schema, and methodology assumptions.
 
 Single source of truth — never hardcode magic numbers in business logic.
-Tracks CLAUDE.md §4, §5, §6 verbatim. Update here, propagate downstream.
+Tracks methodology §4, §5, §6 verbatim. Update here, propagate downstream.
 """
 from __future__ import annotations
 
@@ -391,7 +391,7 @@ DEEP_STABLECOIN_RECEIVERS_ISO3: Final[frozenset[str]] = frozenset(
 
 
 def onramp_pct_for(iso3: str) -> float:
-    """On-ramp cost for a sending country (CLAUDE.md §5.2)."""
+    """On-ramp cost for a sending country (methodology §5.2)."""
     iso3 = (iso3 or "").upper()
     if iso3 in DEVELOPED_SENDERS_ISO3:
         return ONRAMP_DEVELOPED_PCT
@@ -401,7 +401,7 @@ def onramp_pct_for(iso3: str) -> float:
 
 
 def offramp_pct_for(iso3: str) -> float:
-    """Off-ramp cost for a receiving country (CLAUDE.md §5.2)."""
+    """Off-ramp cost for a receiving country (methodology §5.2)."""
     iso3 = (iso3 or "").upper()
     if iso3 in TOP_P2P_RECEIVERS_ISO3:
         return OFFRAMP_TOP_P2P_PCT
@@ -411,7 +411,7 @@ def offramp_pct_for(iso3: str) -> float:
 
 
 def fx_spread_pct_for(iso3: str) -> float:
-    """Local FX spread between stablecoin and local currency (CLAUDE.md §5.2)."""
+    """Local FX spread between stablecoin and local currency (methodology §5.2)."""
     iso3 = (iso3 or "").upper()
     if iso3 in DEEP_STABLECOIN_RECEIVERS_ISO3:
         return FX_SPREAD_DEEP_PCT

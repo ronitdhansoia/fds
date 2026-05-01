@@ -1,4 +1,4 @@
-"""Operator-class fixed-effects regression — CLAUDE.md §5.3.
+"""Operator-class fixed-effects regression (methodology §5.3).
 
 Specification:
 

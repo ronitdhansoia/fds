@@ -1,6 +1,6 @@
 """Stablecoin counterfactual cost model + savings computation.
 
-CLAUDE.md §5.2:
+Methodology §5.2:
     SC_cost_pct = on_ramp(s) + off_ramp(d) + (gas_usd / A * 100)
                   + local_fx_spread(d)
     savings_pct = max(0, TCI_corridor - SC_cost_pct)
@@ -315,7 +315,7 @@ def print_summary(savings: pd.DataFrame) -> None:
     )
     print()
     print("  Sanity check — published ballpark for global stablecoin")
-    print("  remittance savings is ~$30-50 B/yr (CLAUDE.md §7).")
+    print("  remittance savings is ~$30-50 B/yr (methodology §7).")
     print()
 
     print("  Top 10 corridors by absolute savings (USD/year, USD 200 bucket):")

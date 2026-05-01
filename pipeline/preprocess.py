@@ -7,7 +7,7 @@ Steps:
      form: one row per (period, source, destination, firm, send_amount).
   3. Derive fee_pct = total_cost_pct - fx_margin_pct.
   4. Map RPW `speed actual` -> days_to_arrive, compute speed_penalty,
-     and TCI per CLAUDE.md §5.1.
+     and TCI per methodology §5.1.
   5. Normalize firm_type to the regression taxonomy.
   6. Drop rows missing any TCI input; write parquet + a summary print.
 
@@ -333,7 +333,7 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     ].copy()
     logger.info("dropped %d rows missing required TCI inputs", pre_drop - len(long))
 
-    # Derive fee_pct = total_cost_pct - fx_margin_pct (CLAUDE.md §5.1).
+    # Derive fee_pct = total_cost_pct - fx_margin_pct (methodology §5.1).
     long["fee_pct"] = (long["total_cost_pct"] - long["fx_margin_pct"]).clip(lower=0.0)
 
     # Final TCI assembled from its three components.

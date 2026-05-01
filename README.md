@@ -37,7 +37,7 @@ pnpm dev
 
 See [`/methodology`](dashboard/app/methodology/page.tsx) on the deployed dashboard
 for the formulas, every constant with its source, and an explicit limitations
-section. The full specification lives in [`CLAUDE.md`](CLAUDE.md) §5.
+section.
 
 ## Layout
 

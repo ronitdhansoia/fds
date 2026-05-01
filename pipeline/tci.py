@@ -1,6 +1,6 @@
 """True Cost Index — per-provider, corridor-level, and time series.
 
-CLAUDE.md §5.1:
+Methodology §5.1:
 
     TCI(s, d, p, q, A) = fee_pct + fx_margin_pct + speed_penalty
     speed_penalty = κ × max(0, days_to_arrive − 1),  κ = 0.10
