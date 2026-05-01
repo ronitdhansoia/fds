@@ -13,6 +13,7 @@ Stages run in order:
   6. regression — operator-class two-way FE regression
   7. export     — write corridors.json, meta.json, diaspora_burden.json,
                   operator_regression.json
+  8. figures    — render report PNGs to report/figures/
 """
 from __future__ import annotations
 
@@ -29,6 +30,7 @@ from pipeline import (  # noqa: E402  (sys.path tweak)
     aggregate,
     config,
     export,
+    figures,
     ingest,
     preprocess,
     regression,
@@ -99,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
     regression.print_summary(reg_results)
 
     # 7. Export — write every JSON the dashboard reads
-    _step("7/7 export — write corridors.json + meta.json + burden + regression")
+    _step("7/8 export — write corridors.json + meta.json + burden + regression")
     providers = tci.latest_provider_breakdown(df)
     summary_dict = stablecoin.global_savings_summary(savings)
     corridors = export.build_corridor_payloads(panel, providers, savings=savings)
@@ -109,10 +111,18 @@ def main(argv: list[str] | None = None) -> int:
     aggregate.write_json(burden_payload)
     regression.write_regression_json(reg_results)
 
+    # 8. Figures — render report PNGs
+    _step("8/8 figures — render report PNGs to report/figures/")
+    figures.fig_top20_corridors(snap, config.FIGURES_DIR / "fig01_top20_corridors.png")
+    figures.fig_world_map(burden_payload["senders"], config.FIGURES_DIR / "fig02_world_map.png")
+    figures.fig_operator_forest(reg_results, config.FIGURES_DIR / "fig03_operator_forest.png")
+    figures.fig_savings_scatter(savings, config.FIGURES_DIR / "fig04_stablecoin_scatter.png")
+    figures.fig_diaspora_burden(burden_payload["senders"], config.FIGURES_DIR / "fig05_diaspora_burden.png")
+
     elapsed = time.time() - t0
     print()
     print("=" * 86)
-    print(f"  Pipeline complete in {elapsed:.1f} s. Outputs in data/outputs/.")
+    print(f"  Pipeline complete in {elapsed:.1f} s. Outputs in data/outputs/ + report/figures/.")
     print("=" * 86)
     return 0
 
