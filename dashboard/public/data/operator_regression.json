@@ -1,0 +1,179 @@
+{
+  "generated_at": "2026-04-30T23:50:33+00:00",
+  "models": {
+    "200": {
+      "send_amount_usd": 200,
+      "specification": {
+        "model": "two-way fixed effects (corridor + quarter)",
+        "dependent": "tci_pct",
+        "reference_class": "MTO",
+        "cluster_var": "corridor_id",
+        "treatment_classes": [
+          "Bank",
+          "MobileMoney",
+          "PostOffice",
+          "Fintech",
+          "Other"
+        ]
+      },
+      "fit": {
+        "n_observations": 196715,
+        "n_corridors": 368,
+        "n_quarters": 36,
+        "rsquared": 0.10654236510019666,
+        "rsquared_within": 0.1080538168798505,
+        "rsquared_between": 0.17796267808137822,
+        "rsquared_overall": 0.17242285831316229,
+        "f_statistic": 5852.297241389326,
+        "f_pvalue": 0.0
+      },
+      "firm_type_counts": {
+        "MTO": 161074,
+        "Bank": 32738,
+        "PostOffice": 1714,
+        "MobileMoney": 1007,
+        "Fintech": 182,
+        "Other": 0
+      },
+      "coefficients": [
+        {
+          "firm_type": "Bank",
+          "estimate_pct": 4.500731099651582,
+          "std_error_pct": 0.3441641203211038,
+          "t_stat": 13.077281546526168,
+          "p_value": 0.0,
+          "ci_low_pct": 3.826177659997223,
+          "ci_high_pct": 5.175284539305941,
+          "significance": "***",
+          "n_observations_class": 32738
+        },
+        {
+          "firm_type": "MobileMoney",
+          "estimate_pct": -2.957806419351152,
+          "std_error_pct": 0.9228209574390869,
+          "t_stat": -3.2051790713112296,
+          "p_value": 0.0013500005756206246,
+          "ci_low_pct": -4.76651341194783,
+          "ci_high_pct": -1.149099426754474,
+          "significance": "***",
+          "n_observations_class": 1007
+        },
+        {
+          "firm_type": "PostOffice",
+          "estimate_pct": -0.1956386541599428,
+          "std_error_pct": 0.6064458756994763,
+          "t_stat": -0.32259870501104926,
+          "p_value": 0.7469995181491453,
+          "ci_low_pct": -1.3842580577038432,
+          "ci_high_pct": 0.9929807493839575,
+          "significance": "",
+          "n_observations_class": 1714
+        },
+        {
+          "firm_type": "Fintech",
+          "estimate_pct": 11.757456619683753,
+          "std_error_pct": 6.285424344593529,
+          "t_stat": 1.8705907469552232,
+          "p_value": 0.061403314832827904,
+          "ci_low_pct": -0.5618246795319877,
+          "ci_high_pct": 24.076737918899493,
+          "significance": "*",
+          "n_observations_class": 182
+        }
+      ],
+      "notes": [
+        "Specification: TCI_ipq = \u03b20 + \u03a3 \u03b2k \u00b7 1{firm_type=k} + \u03b1_corridor + \u03b3_period + \u03b5.",
+        "Reference class: MTO (largest cell).",
+        "Cluster-robust standard errors at the corridor level.",
+        "Estimates report TCI percentage-point differences relative to MTOs, after absorbing corridor and quarter fixed effects."
+      ]
+    },
+    "500": {
+      "send_amount_usd": 500,
+      "specification": {
+        "model": "two-way fixed effects (corridor + quarter)",
+        "dependent": "tci_pct",
+        "reference_class": "MTO",
+        "cluster_var": "corridor_id",
+        "treatment_classes": [
+          "Bank",
+          "MobileMoney",
+          "PostOffice",
+          "Fintech",
+          "Other"
+        ]
+      },
+      "fit": {
+        "n_observations": 195082,
+        "n_corridors": 368,
+        "n_quarters": 36,
+        "rsquared": 0.03022541522343436,
+        "rsquared_within": 0.030688636667210667,
+        "rsquared_between": 0.0756654851134202,
+        "rsquared_overall": 0.07187015676921249,
+        "f_statistic": 1516.881551906669,
+        "f_pvalue": 0.0
+      },
+      "firm_type_counts": {
+        "MTO": 159510,
+        "Bank": 32688,
+        "PostOffice": 1714,
+        "MobileMoney": 988,
+        "Fintech": 182,
+        "Other": 0
+      },
+      "coefficients": [
+        {
+          "firm_type": "Bank",
+          "estimate_pct": 1.4165781006860538,
+          "std_error_pct": 0.16509316410831662,
+          "t_stat": 8.580477019367352,
+          "p_value": 0.0,
+          "ci_low_pct": 1.0929994331348962,
+          "ci_high_pct": 1.7401567682372114,
+          "significance": "***",
+          "n_observations_class": 32688
+        },
+        {
+          "firm_type": "MobileMoney",
+          "estimate_pct": -1.779903770302099,
+          "std_error_pct": 0.4483492301761047,
+          "t_stat": -3.969904820853557,
+          "p_value": 7.192713567150122e-05,
+          "ci_low_pct": -2.65865757747238,
+          "ci_high_pct": -0.9011499631318179,
+          "significance": "***",
+          "n_observations_class": 988
+        },
+        {
+          "firm_type": "PostOffice",
+          "estimate_pct": -1.2855995156923,
+          "std_error_pct": 0.34227331767456237,
+          "t_stat": -3.7560611631277188,
+          "p_value": 0.00017265876498351318,
+          "ci_low_pct": -1.956447062104246,
+          "ci_high_pct": -0.6147519692803537,
+          "significance": "***",
+          "n_observations_class": 1714
+        },
+        {
+          "firm_type": "Fintech",
+          "estimate_pct": 4.433621495827867,
+          "std_error_pct": 2.9917689684718844,
+          "t_stat": 1.4819397963380985,
+          "p_value": 0.13835793334791147,
+          "ci_low_pct": -1.43017438977214,
+          "ci_high_pct": 10.297417381427874,
+          "significance": "",
+          "n_observations_class": 182
+        }
+      ],
+      "notes": [
+        "Specification: TCI_ipq = \u03b20 + \u03a3 \u03b2k \u00b7 1{firm_type=k} + \u03b1_corridor + \u03b3_period + \u03b5.",
+        "Reference class: MTO (largest cell).",
+        "Cluster-robust standard errors at the corridor level.",
+        "Estimates report TCI percentage-point differences relative to MTOs, after absorbing corridor and quarter fixed effects."
+      ]
+    }
+  }
+}

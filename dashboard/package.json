@@ -1,0 +1,40 @@
+{
+  "name": "dashboard",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "d3-array": "^3.2.4",
+    "d3-geo": "^3.1.1",
+    "d3-scale": "^4.0.2",
+    "framer-motion": "^12.38.0",
+    "i18n-iso-countries": "^7.14.0",
+    "katex": "^0.16.45",
+    "next": "16.2.4",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-simple-maps": "^3.0.0",
+    "topojson-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/d3-array": "^3.2.2",
+    "@types/d3-geo": "^3.1.0",
+    "@types/d3-scale": "^4.0.9",
+    "@types/geojson": "^7946.0.16",
+    "@types/katex": "^0.16.8",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/react-simple-maps": "^3.0.6",
+    "@types/topojson-client": "^3.1.5",
+    "@types/topojson-specification": "^1.0.5",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

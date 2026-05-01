@@ -21,7 +21,9 @@ data/processed/
 node_modules/
 .next/
 .turbo/
-dashboard/public/data/
+.playwright-mcp/
+*.tsbuildinfo
+# dashboard/public/data is committed (dashboard reads from it at build/runtime)
 
 # OS / editor
 .DS_Store
