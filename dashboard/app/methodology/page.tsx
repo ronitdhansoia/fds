@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { Math, MathBlock } from "@/components/Math";
+import {
+  SensitivitySliders,
+  type SensitivityCorridor,
+  type SensitivityDefaults,
+} from "@/components/SensitivitySliders";
 import { TopBar } from "@/components/TopBar";
-import { getMeta } from "@/lib/data";
+import { getCorridors, getMeta } from "@/lib/data";
 import { fmtPeriod } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -14,8 +19,40 @@ export const metadata: Metadata = {
 };
 
 export default async function MethodologyPage() {
-  const meta = await getMeta();
+  const { meta, corridors } = await getCorridors();
   const a = meta.stablecoin_assumptions;
+  const headlineAmount = String(meta.headline_send_amount_usd);
+
+  // Build the slim corridor projection for the sensitivity client component.
+  const sensitivityCorridors: SensitivityCorridor[] = [];
+  for (const c of corridors) {
+    const bucket = c.amounts[headlineAmount];
+    if (!bucket) continue;
+    const tci = bucket.current.tci_pct;
+    const vol = bucket.stablecoin?.volume_usd_annual ?? null;
+    if (typeof tci === "number") {
+      sensitivityCorridors.push({
+        id: c.id,
+        tci_pct: tci,
+        volume_usd_annual: vol,
+      });
+    }
+  }
+  const sensitivityDefaults: SensitivityDefaults = {
+    onramp_pct: a.onramp_pct.default,
+    offramp_pct: a.offramp_pct.default,
+    gas_usd: a.gas_usd,
+    fx_spread_pct: a.fx_spread_pct.default,
+    pipeline_savings_usd: meta.global_savings?.total_savings_usd_annual_current ?? 0,
+  };
+
+  // Lead-sentence formatted dates from meta.
+  const dataPeriodHuman = fmtPeriod(meta.panel_last_period);
+  const generatedDate = new Date(meta.generated_at);
+  const generatedMonthYear = generatedDate.toLocaleDateString("en-US", {
+    month: "long",
+    year: "numeric",
+  });
 
   return (
     <main>
@@ -35,6 +72,11 @@ export default async function MethodologyPage() {
           below, the World Bank Remittance Prices Worldwide panel, and the
           KNOMAD bilateral remittance estimates. If a number on the site is not
           derivable from this page, it is wrong; please open an issue.
+        </p>
+
+        <p className="mt-6 text-body text-text-3 leading-[1.7] pretty">
+          All figures derived from World Bank Remittance Prices Worldwide,{" "}
+          {dataPeriodHuman}, accessed {generatedMonthYear}.
         </p>
 
         <hr className="rule mt-12" />
@@ -373,6 +415,38 @@ export default async function MethodologyPage() {
           </ol>
         </section>
 
+        <hr className="rule mt-16" />
+
+        {/* ---------------------------------------------------------------- */}
+        {/* Sensitivity sliders — heading stays in the 680 px reading column;  */}
+        {/* the widget breaks out below for the side-by-side layout.          */}
+        {/* ---------------------------------------------------------------- */}
+        <section id="sensitivity" className="mt-16">
+          <div className="overline">§6 · Test the assumptions</div>
+          <h2 className="font-display text-subhead mt-3 leading-[1.2] tracking-[-0.02em] text-text">
+            Drag the sliders. Watch the savings move.
+          </h2>
+          <p className="mt-5 text-body-lg text-text-2 leading-[1.75] pretty">
+            The headline number depends on four constants. The sliders below
+            apply a flat assumption to every corridor; the headline animates
+            from the pre-computed baseline to the new scenario in real time. If
+            the dashboard&apos;s research finding survives reviewer-supplied
+            assumption ranges, that is the robustness story.
+          </p>
+        </section>
+      </article>
+
+      {/* Wider container — escapes the 680 px reading column for the slider
+          panel side-by-side layout. Returns to the prose width below. */}
+      <div className="mx-auto max-w-[1024px] px-6 mt-12">
+        <SensitivitySliders
+          corridors={sensitivityCorridors}
+          defaults={sensitivityDefaults}
+          sendAmount={meta.headline_send_amount_usd}
+        />
+      </div>
+
+      <article className="mx-auto max-w-[680px] px-6 pb-32">
         <hr className="rule mt-16" />
 
         <p className="mt-12 text-body text-text-3">

@@ -1,4 +1,5 @@
 import { Footer } from "@/components/Footer";
+import { HeadlineTicker, type TickerItem } from "@/components/HeadlineTicker";
 import { HeroNumber } from "@/components/HeroNumber";
 import { RankingTable } from "@/components/RankingTable";
 import { RevealItem } from "@/components/Reveal";
@@ -6,11 +7,11 @@ import { Section } from "@/components/Section";
 import { TopBar } from "@/components/TopBar";
 import { WorldMap } from "@/components/WorldMap";
 import { getCorridors, getDiasporaBurden, getRegression } from "@/lib/data";
-import { fmtPct, fmtUsdCompact } from "@/lib/format";
+import { fmtPct, fmtPeriod, fmtUsdCompact } from "@/lib/format";
 
 export default async function HomePage() {
   const burden = await getDiasporaBurden();
-  const { meta } = await getCorridors();
+  const { corridors, meta } = await getCorridors();
   const reg = await getRegression();
   const headlineModel = reg.models[String(meta.headline_send_amount_usd)];
 
@@ -18,6 +19,29 @@ export default async function HomePage() {
   const totalBurden = burden.headline.total_fee_burden_usd;
   const totalSavings = burden.headline.total_sc_savings_usd;
   const matchedVolume = burden.headline.total_volume_usd;
+
+  // Build ticker items from the top corridors by absolute fee burden so the
+  // strip cycles through high-volume, high-stake corridors.
+  const headlineAmount = String(meta.headline_send_amount_usd);
+  const corridorById = new Map(corridors.map((c) => [c.id, c]));
+  const tickerItems: TickerItem[] = [];
+  for (const r of rankings.biggest_fee_burden) {
+    if (tickerItems.length >= 12) break;
+    const c = corridorById.get(r.id);
+    if (!c) continue;
+    const sc = c.amounts[headlineAmount]?.stablecoin;
+    const region = (c.source_region ?? "GLOBAL").toUpperCase();
+    if (typeof r.tci_pct !== "number" || !sc?.savings_usd_annual) continue;
+    tickerItems.push({
+      region,
+      source: (r.source_name ?? r.source_code).toUpperCase(),
+      destination: (r.destination_name ?? r.destination_code).toUpperCase(),
+      tci_pct: r.tci_pct,
+      savings_usd: sc.savings_usd_annual,
+    });
+  }
+
+  const dataPeriodHuman = fmtPeriod(meta.panel_last_period);
 
   return (
     <main>
@@ -33,7 +57,9 @@ export default async function HomePage() {
         <div className="mx-auto grid max-w-[1280px] grid-cols-12 gap-6 px-6 pt-32 pb-32">
           <div className="col-span-12 lg:col-span-2">
             <RevealItem order={0}>
-              <div className="overline">FDS · BITS Pilani Dubai · 2026</div>
+              <div className="overline">
+                FDS · BITS Pilani Dubai · Data as of {dataPeriodHuman}
+              </div>
             </RevealItem>
           </div>
           <div className="col-span-12 lg:col-span-10">
@@ -68,7 +94,13 @@ export default async function HomePage() {
             </RevealItem>
 
             <RevealItem order={3}>
-              <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
+              <div className="mt-10">
+                <HeadlineTicker items={tickerItems} />
+              </div>
+            </RevealItem>
+
+            <RevealItem order={4}>
+              <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-5">
                 <Stat
                   label="Corridor volume"
                   value={fmtUsdCompact(matchedVolume)}
@@ -113,7 +145,7 @@ export default async function HomePage() {
         }
         className="mt-32"
       >
-        <RevealItem order={4}>
+        <RevealItem order={5}>
           <WorldMap senders={burden.senders} />
         </RevealItem>
         <p className="mt-6 max-w-[640px] text-body text-text-2 leading-relaxed pretty">
