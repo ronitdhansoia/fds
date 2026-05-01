@@ -111,6 +111,7 @@ const PARAMS: ParamSpec[] = [
 
 function useUrlSyncedState(defaults: Record<ParamKey, number>) {
   const [state, setState] = useState<Record<ParamKey, number>>(defaults);
+
   // Initial read of URL params (client only).
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -131,29 +132,37 @@ function useUrlSyncedState(defaults: Record<ParamKey, number>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Push back to URL when state changes (replaceState — don't pollute history).
+  // Debounce URL writes — Radix Slider fires onValueChange many times per
+  // second on drag, which trips Firefox's 100-call replaceState rate limit
+  // (and is wasteful in any browser). Only flush 350 ms after the last move.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const sp = new URLSearchParams(window.location.search);
-    let dirty = false;
-    for (const k of PARAM_KEYS) {
-      const v = state[k];
-      const isDefault = Math.abs(v - defaults[k]) < 1e-9;
-      const cur = sp.get(k);
-      if (isDefault && cur !== null) {
-        sp.delete(k);
-        dirty = true;
-      } else if (!isDefault && cur !== String(v)) {
-        sp.set(k, String(v));
-        dirty = true;
+    const id = window.setTimeout(() => {
+      const sp = new URLSearchParams(window.location.search);
+      let dirty = false;
+      for (const k of PARAM_KEYS) {
+        const v = state[k];
+        const isDefault = Math.abs(v - defaults[k]) < 1e-9;
+        const cur = sp.get(k);
+        if (isDefault && cur !== null) {
+          sp.delete(k);
+          dirty = true;
+        } else if (!isDefault && cur !== String(v)) {
+          sp.set(k, String(v));
+          dirty = true;
+        }
       }
-    }
-    if (dirty) {
+      if (!dirty) return;
       const qs = sp.toString();
       const next =
         window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash;
-      window.history.replaceState(null, "", next);
-    }
+      try {
+        window.history.replaceState(null, "", next);
+      } catch {
+        /* swallow rate-limit errors — the next debounce tick will retry. */
+      }
+    }, 350);
+    return () => window.clearTimeout(id);
   }, [state, defaults]);
 
   return [state, setState] as const;
