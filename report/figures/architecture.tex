@@ -1,0 +1,195 @@
+% System architecture diagram for the MigrantMoney report.
+% Standalone TikZ — produces a vector PDF that is converted to PNG for
+% pandoc-markdown embedding. Compile with pdflatex (or tectonic, which
+% wraps xetex but produces the same vector output for this document).
+%
+% Style notes (locked, do not introduce new accents):
+%   - palette: black, two greys (5% and 2% black), white. No colours.
+%   - all relative placement via the `positioning` library — no absolute
+%     coordinates, so the diagram stays stable to small label changes.
+%   - three node styles: `source` (input data, shaded), `stage` (pipeline
+%     process), `artefact` (file produced by a stage, italic mono label),
+%     `frontend` (the consumer at the bottom).
+\documentclass[border=4pt]{standalone}
+
+\usepackage{tikz}
+\usepackage{xcolor}
+\usetikzlibrary{positioning, arrows.meta, calc, fit, backgrounds}
+
+\definecolor{srcfill}{RGB}{245,245,245}
+\definecolor{frontfill}{RGB}{250,250,250}
+\definecolor{flowdraw}{RGB}{80,80,80}
+\definecolor{subgrey}{RGB}{100,100,100}
+
+% Subtitle text — small sans grey. Used inside every node's second line.
+\newcommand{\sub}[1]{{\sffamily\scriptsize\color{subgrey}#1}}
+
+\begin{document}
+
+\begin{tikzpicture}[
+    node distance=8mm and 6mm,
+    source/.style={
+      rectangle, rounded corners=2pt,
+      draw=black, line width=0.6pt, fill=srcfill,
+      minimum height=11mm, minimum width=42mm,
+      align=center, font=\sffamily,
+      inner sep=4pt
+    },
+    stage/.style={
+      rectangle, rounded corners=2pt,
+      draw=black, line width=0.6pt, fill=white,
+      minimum height=10mm, minimum width=30mm,
+      align=center, font=\sffamily,
+      inner sep=4pt
+    },
+    stagewide/.style={
+      rectangle, rounded corners=2pt,
+      draw=black, line width=0.6pt, fill=white,
+      minimum height=10mm, minimum width=140mm,
+      align=center, font=\sffamily,
+      inner sep=4pt
+    },
+    artefact/.style={
+      rectangle,
+      draw=black!60, line width=0.4pt, fill=white,
+      minimum height=7mm, minimum width=28mm,
+      align=center, font=\ttfamily\footnotesize\itshape,
+      inner sep=3pt
+    },
+    frontend/.style={
+      rectangle, rounded corners=2pt,
+      draw=black, line width=0.7pt, fill=frontfill,
+      minimum height=14mm, minimum width=152mm,
+      align=center, font=\sffamily,
+      inner sep=5pt
+    },
+    flow/.style={
+      ->, >=Stealth,
+      line width=0.5pt, draw=flowdraw
+    },
+  ]
+
+% =====================================================================
+% Band 1 — Data sources
+% =====================================================================
+\node[source] (rpw) {%
+  \textbf{World Bank RPW}\\
+  \sub{xlsx · 36 quarters · 392k rows}%
+};
+\node[source, right=10mm of rpw] (brm) {%
+  \textbf{KNOMAD BRE}\\
+  \sub{Data360 API · 2021 bilateral}%
+};
+\node[source, right=10mm of brm] (cty) {%
+  \textbf{WB Country lookup}\\
+  \sub{M49 + ISO3 + region}%
+};
+
+% =====================================================================
+% Band 2 — Pipeline (centre stripe)
+% =====================================================================
+
+% --- ingest + preprocess (stacked vertically below RPW, slightly shifted
+%     so all three sources can flow into ingest cleanly)
+\node[stage, below=14mm of brm] (ingest) {%
+  \textbf{ingest}\\
+  \sub{pipeline/ingest.py}%
+};
+\node[stage, below=8mm of ingest] (preprocess) {%
+  \textbf{preprocess}\\
+  \sub{schema sniff · cc1/cc2 melt}%
+};
+
+% --- cleaned parquet artefact
+\node[artefact, below=8mm of preprocess] (parquet) {rpw\_clean.parquet};
+
+% --- four parallel computation stages, side by side, below the parquet
+\node[stage, below left=10mm and -8mm of parquet] (stagecore1) {%
+  \textbf{tci}\\
+  \sub{fee + fxMargin + $\kappa$·max(0,d-1)}%
+};
+\node[stage, right=4mm of stagecore1] (stagecore2) {%
+  \textbf{stablecoin}\\
+  \sub{on/off-ramp + gas + fxSpread}%
+};
+\node[stage, right=4mm of stagecore2] (stagecore3) {%
+  \textbf{regression}\\
+  \sub{two-way FE · clustered SE}%
+};
+\node[stage, right=4mm of stagecore3] (stagecore4) {%
+  \textbf{aggregate}\\
+  \sub{diaspora burden · rankings}%
+};
+
+% --- terminal stages: export and figures
+\node[stage, below=11mm of stagecore2] (export) {%
+  \textbf{export}\\
+  \sub{round · null-safe JSON}%
+};
+\node[stage, right=4mm of export] (figures) {%
+  \textbf{figures}\\
+  \sub{Plotly · 300 DPI}%
+};
+
+% --- output artefacts: JSON quad below export, slightly narrower so they
+%     don't crowd the canvas
+\node[artefact, below=9mm of export, xshift=-46mm] (corridors) {corridors.json};
+\node[artefact, right=3mm of corridors] (regjson) {operator\_regression.json};
+\node[artefact, right=3mm of regjson] (burdenjson) {diaspora\_burden.json};
+\node[artefact, right=3mm of burdenjson] (metajson) {meta.json};
+
+% Report figures node — directly below the figures stage so the arrow
+% goes straight down and doesn't cross any other node. Drawn one row
+% lower than the JSON quad so the visual hierarchy is "JSON files →
+% dashboard" while "figures → report PNGs" sits as a parallel terminal
+% branch.
+\node[artefact, below=18mm of figures, minimum width=36mm] (reportpngs) {report figures.png};
+
+% =====================================================================
+% Band 3 — Frontend
+% =====================================================================
+\node[frontend, below=14mm of regjson] (front) {%
+  \textbf{Next.js dashboard}\\
+  \sub{static JSON · no runtime backend}%
+};
+
+% =====================================================================
+% Arrows — sources to ingest/preprocess
+% =====================================================================
+\draw[flow] (rpw.south) -- (ingest.north west);
+\draw[flow] (brm.south) -- (ingest.north);
+\draw[flow] (cty.south) -- (ingest.north east);
+\draw[flow] (ingest.south) -- (preprocess.north);
+\draw[flow] (preprocess.south) -- (parquet.north);
+
+% --- parquet feeds all four computation stages
+\draw[flow] (parquet.south) -- ($(parquet.south) + (0,-3mm)$) -| (stagecore1.north);
+\draw[flow] (parquet.south) -- ($(parquet.south) + (0,-3mm)$) -| (stagecore2.north);
+\draw[flow] (parquet.south) -- ($(parquet.south) + (0,-3mm)$) -| (stagecore3.north);
+\draw[flow] (parquet.south) -- ($(parquet.south) + (0,-3mm)$) -| (stagecore4.north);
+
+% --- computation stages feed export/figures
+\draw[flow] (stagecore1.south) -- ($(stagecore1.south) + (0,-3mm)$) -| (export.north);
+\draw[flow] (stagecore2.south) -- ($(stagecore2.south) + (0,-3mm)$) -| (export.north);
+\draw[flow] (stagecore3.south) -- ($(stagecore3.south) + (0,-3mm)$) -| (export.north);
+\draw[flow] (stagecore4.south) -- ($(stagecore4.south) + (0,-3mm)$) -| (export.north);
+
+% Figures uses the same in-memory frames; draw a tap from stagecore4 to figures
+\draw[flow] (stagecore4.south) -- ($(stagecore4.south) + (0,-3mm)$) -| (figures.north);
+
+% --- export emits JSON files; figures emits PNGs
+\draw[flow] (export.south) -- ($(export.south) + (0,-3mm)$) -| (corridors.north);
+\draw[flow] (export.south) -- ($(export.south) + (0,-3mm)$) -| (regjson.north);
+\draw[flow] (export.south) -- ($(export.south) + (0,-3mm)$) -| (burdenjson.north);
+\draw[flow] (export.south) -- ($(export.south) + (0,-3mm)$) -| (metajson.north);
+\draw[flow] (figures.south) -- (reportpngs.north);
+
+% --- JSON files feed the dashboard
+\draw[flow] (corridors.south) -- ($(corridors.south) + (0,-3mm)$) -| (front.north);
+\draw[flow] (regjson.south)   -- ($(regjson.south) + (0,-3mm)$)   -| (front.north);
+\draw[flow] (burdenjson.south)-- ($(burdenjson.south) + (0,-3mm)$)-| (front.north);
+\draw[flow] (metajson.south)  -- ($(metajson.south) + (0,-3mm)$)  -| (front.north);
+
+\end{tikzpicture}
+
+\end{document}

@@ -9,7 +9,7 @@ abstract: |
   The United Nations Sustainable Development Goal 10.c calls for the global
   average cost of cross-border remittances to fall to 3% of the principal by
   2030. We compute the same average from the World Bank Remittance Prices
-  Worldwide (RPW) panel — 36 quarters, 368 corridors, 694 providers — and
+  Worldwide (RPW) panel (36 quarters, 368 corridors, 694 providers) and
   arrive at 5.00%, 200 basis points above target. We unify the advertised
   fee, the foreign-exchange margin, and a settlement-speed penalty into a
   single True Cost Index (TCI) and rank corridors by it. We then construct
@@ -21,8 +21,8 @@ abstract: |
   fixed-effects regression with cluster-robust standard errors finds that,
   conditional on corridor and quarter, banks charge 4.50 percentage points
   more than money-transfer operators (p < 0.01) and mobile money charges
-  2.96 pp less (p < 0.01). All artefacts — pipeline, JSON outputs,
-  dashboard, figures — are published under the MigrantMoney repository.
+  2.96 pp less (p < 0.01). All artefacts (pipeline, JSON outputs,
+  dashboard, figures) are published under the MigrantMoney repository.
 geometry: margin=1in
 fontsize: 11pt
 linkcolor: black
@@ -41,7 +41,6 @@ header-includes:
   - \newunicodechar{×}{$\times$}
   - \newunicodechar{−}{-}
   - \newunicodechar{–}{--}
-  - \newunicodechar{—}{---}
   - \newunicodechar{≈}{$\approx$}
   - \newunicodechar{β}{$\beta$}
   - \newunicodechar{α}{$\alpha$}
@@ -60,7 +59,7 @@ header-includes:
 
 The United Nations Sustainable Development Goal 10.c asks member states to
 reduce the global average cost of cross-border remittances to 3% of the
-principal — and to eliminate corridors with average costs above 5% — by
+principal (and to eliminate corridors with average costs above 5%) by
 2030 [1]. The World Bank publishes the *Remittance Prices
 Worldwide* (RPW) panel quarterly to track progress against that target
 [2]. We compute the same average from the most recent
@@ -80,9 +79,9 @@ working capital at a time when their effective discount rate is high.
 
 Multiplied across the panel-matched bilateral volume of USD 484 billion in
 2021, the total fees paid by migrant workers come to **USD 24.21 billion
-per year** — figure cited as the headline of the project dashboard. Of
+per year**, the figure cited as the headline of the project dashboard. Of
 this USD 24.21 billion, our stablecoin counterfactual estimates that
-USD 5.22 billion — roughly 22% of the global fee burden — is
+USD 5.22 billion (roughly 22% of the global fee burden) is
 recoverable under conservative assumptions (§6.3).
 
 This report makes two contributions:
@@ -115,7 +114,7 @@ TCI to the Bilateral Remittance Estimates indicator (§6.4).
   predict cost? Is one operator type systematically more rent-extractive
   than another?
 - **RQ4.** If migrant workers used stablecoin rails instead of the
-  incumbent network, how much money would they keep — and which
+  incumbent network, how much money would they keep, and which
   corridors benefit most?
 
 # Related work
@@ -123,9 +122,9 @@ TCI to the Bilateral Remittance Estimates indicator (§6.4).
 Our work intersects three literatures.
 
 The first is the **World Bank's own RPW methodology**. Begg-Witherick et
-al. [3] document the data collection — quarterly mystery
-shopping at major sending-country agents for two send amounts (USD 200
-and USD 500) — and report price components separately. Our contribution
+al. [3] document the data collection (quarterly mystery
+shopping at major sending-country agents for two send amounts, USD 200
+and USD 500) and report price components separately. Our contribution
 is the unification of those components: the RPW publishes total cost,
 fee percent, and FX margin in three columns; no published index combines
 them with a calibrated speed penalty into a single comparable metric.
@@ -138,7 +137,7 @@ alone reduces remitter cost, foreshadowing why our TCI's unified
 percent-of-principal framing matters: the *quoted* number a migrant sees
 is the headline fee, but the *paid* number is the total. Yang [11]
 shows that exchange-rate shocks transmit directly into recipient
-household investment behaviour — sharpening the case for treating the
+household investment behaviour, sharpening the case for treating the
 FX margin as a first-class component of cost rather than a bookkeeping
 adjustment. Ratha and the Migration and Development Brief series [6]
 track aggregate flows and corridor-level prices but do not produce a
@@ -148,8 +147,8 @@ The third is **stablecoins for cross-border**. The Bank for International
 Settlements [8] and the IMF [9]
 discuss the on-ramp / off-ramp friction structure that determines whether
 stablecoins beat traditional rails on any given corridor; the BIS
-emerging-market CBDC paper [13] argues that the policy alternative —
-sovereign digital currency — has yet to scale into cross-border
+emerging-market CBDC paper [13] argues that the policy alternative,
+sovereign digital currency, has yet to scale into cross-border
 remittance corridors, leaving stablecoins as the de-facto default for
 the next several years. Chainalysis and similar industry reports
 estimate aggregate global savings in the USD 30–50 billion per year
@@ -172,24 +171,24 @@ covering periods 2016 Q2 through 2025 Q1 (36 quarters; the
 incompatible schema and is excluded; this is documented in the project
 methodology page.
 
-We melt the two RPW per-amount blocks — `cc1` (USD 200) and `cc2`
-(USD 500) — into long form: one row per (corridor, provider, period,
+We melt the two RPW per-amount blocks (`cc1` for USD 200 and `cc2` for
+USD 500) into long form: one row per (corridor, provider, period,
 send-amount). We derive the fee percent as
 $\mathrm{fee}_\% = \mathrm{total\,cost}_\% - \mathrm{fxMargin}_\%$ to
 match the way the published headline number is composed; we map the
 `speed actual` column to days (less than one hour or same day → 0
 days, next day → 1, two days → 2, three-to-five days → 4, six or more
 → 6) and clip rows with implausible total cost (>100% or fee + FX
-margin disagreement beyond rounding tolerance — 0.8% of rows). After
+margin disagreement beyond rounding tolerance, 0.8% of rows). After
 cleaning, the panel contains **391,797 provider-quarter-amount
 observations** (196,715 at USD 200 and 195,082 at USD 500) across **368
 unique corridors**, **49 sending countries**, **105 receiving
 countries** and **694 unique providers**.
 
-The most extreme TCI values in the panel — Tanzania → Uganda
+The most extreme TCI values in the panel are Tanzania → Uganda
 (63.62%), Tanzania → Kenya (58.17%), Tanzania → Rwanda (44.27%),
-South Africa → Malawi (43.41%) and Türkiye → Bulgaria (41.70%) — were
-tested for robustness against single-provider outliers. Re-computing
+South Africa → Malawi (43.41%) and Türkiye → Bulgaria (41.70%). We
+test each for robustness against single-provider outliers. Re-computing
 each as a median across providers, and separately as the mean
 excluding the highest-cost provider, leaves the corridor ordering
 substantively unchanged: all five remain in the top 10 under both
@@ -197,8 +196,8 @@ alternatives (the only movement is Tanzania → Rwanda dropping one
 place to 4th and Türkiye → Bulgaria rising one place to 5th when
 ranked by trimmed mean). Provider counts (n = 6, 7, 5, 13, and 5
 respectively) include three corridors with five-to-seven providers,
-which is itself a feature of the underlying corridor — these are
-thin, lightly contested markets — and we flag the small-n caveat
+which is itself a feature of the underlying corridor (these are
+thin, lightly contested markets), and we flag the small-n caveat
 in §7.
 
 ![Distribution of corridor-level TCI at USD 200, 2025 Q1. Vertical hairlines mark the SDG 10.c target (3%) and the panel volume-weighted global mean (5.00%). 368 corridors; the right tail is capped at 30% with a count of corridors above the cap shown inset.](figures/tci_distribution.png)
@@ -279,7 +278,7 @@ with components:
   and FX margin in most corridors.
 
 We compute TCI at both $A = $ USD 200 and $A = $ USD 500. The headline
-is USD 200 — the SDG 10.c benchmark. Corridor-level TCI is the
+is USD 200, the SDG 10.c benchmark. Corridor-level TCI is the
 unweighted mean across providers; the median is reported alongside as a
 robustness check. Provider-level market shares are not exposed in the
 public RPW release (verified 2026-04-30), so volume-weighting at the
@@ -359,10 +358,10 @@ snapshots to `data/raw/`. A `preprocess` stage emits a long-form parquet
 on which `tci`, `stablecoin`, `regression` and `aggregate` operate.
 `export` rounds and serialises the result to four JSON files; `figures`
 renders six report PNGs at 300 DPI from the same in-memory frames. The
-Next.js dashboard reads the JSON at build time — there is no runtime
+Next.js dashboard reads the JSON at build time. There is no runtime
 backend.
 
-![System architecture: data flow from World Bank panels through the Python pipeline to the static-JSON dashboard.](figures/fig06_block_diagram.png)
+![System architecture: data flow from World Bank panels through the Python pipeline to the static-JSON dashboard.](figures/architecture.png)
 
 The pipeline is structured as a directed acyclic graph of pure stages,
 each consuming the prior stage's parquet output and emitting either
@@ -381,7 +380,7 @@ the architecture used by data-journalism teams at the *Financial Times*,
 at numbers (Python) computes once, the language good at presentation
 (TypeScript / React) renders. Sensitivity sliders on the methodology
 page recompute the stablecoin counterfactual client-side using the same
-formulas locked in §4.2 — the corridor-level TCI is fixed, but the four
+formulas locked in §4.2: the corridor-level TCI is fixed, but the four
 stablecoin cost components are evaluated in JavaScript on every slider
 change, allowing a reviewer to stress the headline figure without
 re-running the pipeline.
@@ -389,8 +388,8 @@ re-running the pipeline.
 The full pipeline is reproducible by `python scripts/run_all.py` against
 any RPW snapshot matching the canonical schema documented in
 `pipeline/config.py`. The KNOMAD bilateral indicator is fetched from
-the Data360 OData API at run time. Every constant — $\kappa$, the speed
-mapping, the stablecoin cost tiers — is defined once in
+the Data360 OData API at run time. Every constant ($\kappa$, the speed
+mapping, the stablecoin cost tiers) is defined once in
 `pipeline/config.py` and consumed by both the Python pipeline and the
 dashboard's methodology page, so the figures in this report and the
 numbers on the live dashboard cannot drift out of sync.
@@ -494,13 +493,13 @@ The cheapest cluster is omitted from Table 3 but worth noting for the
 SDG framing: Kuwait → Pakistan (TCI = 0.73%), Bahrain → Pakistan
 (0.81%), Russia → CIS receivers (1.0–2.0%), and United Kingdom → Pakistan
 (1.72%) all sit below SDG 10.c's 3% target. These are corridors with
-high migrant volume and intense competition — the very structural
+high migrant volume and intense competition, the very structural
 conditions that the SDG framing wants generalised to other corridors.
 
 The most striking divergence between the *advertised* fee and TCI shows
 in **South Africa → Malawi (ZAF-MWI)**: an advertised fee of 11.36% is
 modest by panel standards, but the corridor sits 4th on TCI because the
-foreign-exchange margin is **31.99 percentage points** — the highest in
+foreign-exchange margin is **31.99 percentage points**, the highest in
 the panel. A migrant looking at the listed fee underestimates the true
 cost by a factor of nearly four. This is exactly the gap the TCI is
 constructed to surface.
@@ -520,7 +519,7 @@ panel. With $N$ = 196,715, 368 corridor entities and 36 quarter
 periods, both $F$-statistics are large enough to reject the null at any
 conventional level. The within-$R^2$ of 0.108 means provider class
 explains about 10.8% of within-corridor TCI variance after corridor and
-quarter fixed effects are absorbed — substantively meaningful for a
+quarter fixed effects are absorbed: substantively meaningful for a
 panel where the corridor and quarter dimensions account for the bulk of
 the explained variance.
 
@@ -538,7 +537,7 @@ Fintech$^{\dagger}$ & $+11.758^{*}$  & $(6.285)$ & $+1.87$  & $[-0.56,\ +24.08]$
 \midrule
 \multicolumn{6}{l}{$N$ = 196{,}715. Corridor FE = 368. Quarter FE = 36. $R^2_{\text{within}} = 0.108$.} \\
 \multicolumn{6}{l}{$F$ = 5{,}852.30, $p < 10^{-300}$. Cluster-robust SE in parentheses.} \\
-\multicolumn{6}{p{0.95\textwidth}}{\footnotesize $^{\dagger}$The Fintech category in RPW excludes most digital-first providers (Wise, Remitly, WorldRemit), which are classified as MTO. The coefficient is estimated on a small, residual sample and should not be read as the cost of digital-first providers — see §7.} \\
+\multicolumn{6}{p{0.95\textwidth}}{\footnotesize $^{\dagger}$The Fintech category in RPW excludes most digital-first providers (Wise, Remitly, WorldRemit), which are classified as MTO. The coefficient is estimated on a small, residual sample and should not be read as the cost of digital-first providers; see §7.} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -546,7 +545,7 @@ Fintech$^{\dagger}$ & $+11.758^{*}$  & $(6.285)$ & $+1.87$  & $[-0.56,\ +24.08]$
 The Bank coefficient is the headline finding: **banks charge 4.50
 percentage points more than MTOs** for the same corridor in the same
 quarter, significant at $p < 0.01$. Mobile money services are 2.96 pp
-cheaper than MTOs, also at $p < 0.01$ — consistent with the prior
+cheaper than MTOs, also at $p < 0.01$, consistent with the prior
 literature on M-Pesa-style competitive pricing in mobile-banked
 markets. Post offices are statistically indistinguishable from MTOs.
 The Fintech coefficient is a measurement artefact: the cell contains
@@ -557,13 +556,13 @@ estimate is therefore dominated by the residual edge-case providers
 left in the Fintech cell and **should not be read as the cost of
 digital-first providers**. We return to this in §7.
 
-![Operator-class coefficients from the two-way FE regression, with 95% CI, ranked by point estimate. The Fintech cell (n = 182) is dominated by edge-case providers; RPW classifies most digital-first remittance fintechs (Wise, Remitly, WorldRemit) as "Money Transfer Operator", so the Fintech coefficient should not be interpreted as the cost of digital-first providers — see §7.](figures/fig03_operator_forest.png)
+![Operator-class coefficients from the two-way FE regression, with 95% CI, ranked by point estimate. The Fintech cell (n = 182) is dominated by edge-case providers; RPW classifies most digital-first remittance fintechs (Wise, Remitly, WorldRemit) as "Money Transfer Operator", so the Fintech coefficient should not be interpreted as the cost of digital-first providers; see §7.](figures/fig03_operator_forest.png)
 
 ## Stablecoin counterfactual
 
 Applying the cost model from §4.2 to every panel corridor with a
 matched 2021 KNOMAD bilateral volume (349 of 368), the global headline
-is **USD 5.215 billion per year** in implied savings — equivalent to
+is **USD 5.215 billion per year** in implied savings, equivalent to
 1.08% of the matched USD 484 billion in 2021 corridor flow. **200 of
 349 corridors** show positive savings under the conservative defaults;
 the remaining 149 already trade below the flat-tier stablecoin cost
@@ -631,7 +630,7 @@ optimistic values (on-ramp 0.5%, off-ramp 0.5%, gas USD 0.10, FX spread
 off-ramp 4.0%, gas USD 2.00, FX spread 3.0%) reduces the figure to
 USD 0.26 billion / year and 10% coverage. The pipeline-precise tiered
 estimate of USD 5.22 billion sits between these bookends, closer to
-the geometric mean than to either extreme — a defensible central
+the geometric mean than to either extreme. The result is a defensible central
 estimate that survives reviewer-supplied stress.
 
 ## Diaspora burden by sending country
@@ -663,7 +662,7 @@ AUS & Australia            & 16 &  13.75 & 0.590 & 4.29 \\
 ![Top-10 sending countries by annual fee burden, with stablecoin counterfactual savings overlaid.](figures/fig05_diaspora_burden.png)
 
 The United States dominates with USD 8.81 billion per year in fees on
-USD 170 billion of outflow (38 corridors covered) — a single country
+USD 170 billion of outflow (38 corridors covered): a single country
 accounts for more than a third of the global panel-matched burden.
 
 The Italy result is structurally interesting. Italy ranks fourth by
@@ -671,7 +670,7 @@ absolute fee burden despite an outflow (USD 11.69 billion) less than
 7% of the United States', because its corridor mix is dominated by
 high-TCI receivers: Italy → Serbia (15.38% TCI), Italy → Egypt
 (12.31%), Italy → Albania (12.07%), Italy → Kosovo (11.11%) and Italy
-→ Ukraine (10.84%) — five of the eighteen Italian sending corridors
+→ Ukraine (10.84%). Five of the eighteen Italian sending corridors
 sit above the 10% mark. The volume-weighted TCI of 7.73% is the highest
 among the top-10 senders and stands in contrast to the United Kingdom
 (3.84%) and the United Arab Emirates (3.85%), both of which sit close
@@ -681,7 +680,7 @@ the absence of competitive low-cost corridors in the Italian sender
 mix.
 
 Russia's volume-weighted TCI (3.00%) sits exactly at the SDG 10.c
-target — its corridor mix is unusually competitive (RUS → CIS at
+target. Its corridor mix is unusually competitive (RUS → CIS at
 1–2%) because of geographic and currency proximity.
 
 # Discussion and limitations
@@ -689,7 +688,7 @@ target — its corridor mix is unusually competitive (RUS → CIS at
 Four honest limitations bound our claims.
 
 **Formal-channel coverage only.** The RPW samples advertised prices at
-formal sending agents — banks, MTO storefronts, postal offices,
+formal sending agents: banks, MTO storefronts, postal offices,
 exchange houses, fintech apps. It does not see hawala, hundi, or
 informal cash-courier flows, which the IMF and UN estimate to handle
 20–50% of remittance volume in some corridors. To the extent these
@@ -699,7 +698,7 @@ stablecoin counterfactual understates the welfare gain from a regulated
 digital alternative. Both directions are documented but unmeasured.
 
 **Small-provider-count corridors.** A subset of corridors in the panel
-— particularly intra-African and Türkiye-origin pairs — are sampled
+(particularly intra-African and Türkiye-origin pairs) are sampled
 with five to seven providers per quarter. While the corridor rankings
 in §6.1 are robust to median and trim-one-provider alternatives (§3),
 the absolute TCI values for these corridors should be read with the
@@ -716,7 +715,7 @@ figure should be read as an order-of-magnitude estimate, not a forecast.
 **No causal claim.** The fixed-effects regression establishes that
 bank-routed remittances are *systematically* more expensive than
 MTO-routed ones for the same corridor in the same quarter. It does not
-say they are *causally* more expensive — provider type and customer
+say they are *causally* more expensive. Provider type and customer
 type are correlated, and an unbanked migrant who walks into an MTO is
 making a different choice than a salaried migrant routing a payroll
 transfer through their employer's bank. The next step is a
@@ -740,19 +739,19 @@ obvious next step and is on the project roadmap.
 
 \bibitem{un_sdg10c}
 United Nations,
-``Indicator 10.c.1 — Remittance costs as a proportion of the amount remitted,''
-\emph{Sustainable Development Goals — Indicator Framework}, accessed 30 April 2026.
+``Indicator 10.c.1: Remittance costs as a proportion of the amount remitted,''
+\emph{Sustainable Development Goals: Indicator Framework}, accessed 30 April 2026.
 \url{https://unstats.un.org/sdgs/metadata/?Text=&Goal=10&Target=10.c}
 
 \bibitem{worldbank_rpw_2025}
 World Bank Group,
-``Remittance Prices Worldwide — quarterly update Q1 2025 dataset,''
+``Remittance Prices Worldwide: quarterly update Q1 2025 dataset,''
 \emph{Remittance Prices Worldwide data download}, last updated 20 April 2026.
 \url{https://remittanceprices.worldbank.org/data-download}
 
 \bibitem{beggwitherick_rpw}
 S. Beggs Witherick et al.,
-``Remittance Prices Worldwide — methodology and price decomposition,''
+``Remittance Prices Worldwide: methodology and price decomposition,''
 \emph{World Bank Working Paper}, 2018.
 \url{https://remittanceprices.worldbank.org/methodology}
 
@@ -769,7 +768,7 @@ D. Aycinena, C. A. Mart\'inez and D. Yang,
 
 \bibitem{knomad_brief_38}
 World Bank / KNOMAD,
-``Migration and Development Brief 38 — bilateral remittance estimates 2021,''
+``Migration and Development Brief 38: bilateral remittance estimates 2021,''
 \emph{KNOMAD}, December 2022.
 \url{https://www.knomad.org/sites/default/files/publication-doc/migration_and_development_brief_38_june_2023_0.pdf}
 
@@ -781,7 +780,7 @@ World Bank / KNOMAD,
 
 \bibitem{bis_stablecoin_2023}
 R. Auer, G. Cornelli and J. Frost,
-``The technology of decentralised finance — DeFi and the role of stablecoins,''
+``The technology of decentralised finance: DeFi and the role of stablecoins,''
 \emph{BIS Working Papers}, no. 1066, Bank for International Settlements, 2023.
 \url{https://www.bis.org/publ/work1066.htm}
 
