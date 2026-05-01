@@ -74,13 +74,15 @@ body {
   letter-spacing: -0.005em;
 }
 
-/* Inline numerics — proportional figures so they read with the surrounding
-   prose without yawning gaps before periods/percent signs. Use .tabular for
-   table columns where alignment matters. */
+/* Inline numerics in prose — Geist Sans with tabular figures + ss01 +
+   slashed zero. Keeps periods/percent signs tight to the digit while still
+   aligning columns when used in tables. Mono is reserved for the actual
+   tabular blocks (table cells, KPI values, overlines, chart axes). */
 .num {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-feature-settings: "ss01", "zero";
-  letter-spacing: -0.01em;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "tnum", "ss01", "zero";
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.011em;
 }
 
 .tabular {
