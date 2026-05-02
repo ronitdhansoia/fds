@@ -1,4 +1,4 @@
-// Formatting utilities — every number on the page goes through one of these
+// Formatting utilities. Every number on the page goes through one of these
 // so units, separators, and rounding are consistent.
 //
 // Whitespace: we use a thin space (U+2009) as the thousands separator where
@@ -11,7 +11,7 @@ const THIN = " ";
 const intFmt = new Intl.NumberFormat("en-US");
 
 export function fmtInt(n: number | null | undefined): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  if (n === null || n === undefined || Number.isNaN(n)) return "–";
   return intFmt.format(Math.round(n)).replace(/,/g, THIN);
 }
 
@@ -20,13 +20,13 @@ export function fmtPct(
   decimals = 2,
   withSign = false,
 ): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  if (n === null || n === undefined || Number.isNaN(n)) return "–";
   const sign = withSign && n > 0 ? "+" : "";
   return `${sign}${n.toFixed(decimals)}%`;
 }
 
 export function fmtPp(n: number | null | undefined, decimals = 2): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  if (n === null || n === undefined || Number.isNaN(n)) return "–";
   const sign = n > 0 ? "+" : "";
   return `${sign}${n.toFixed(decimals)} pp`;
 }
@@ -35,7 +35,7 @@ export function fmtUsdCompact(
   n: number | null | undefined,
   unit?: "B" | "M" | "K",
 ): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  if (n === null || n === undefined || Number.isNaN(n)) return "–";
   const abs = Math.abs(n);
   let u: "B" | "M" | "K" | "" = "";
   let v = n;
@@ -57,7 +57,7 @@ export function fmtUsdCompact(
 }
 
 export function fmtUsdFull(n: number | null | undefined): string {
-  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  if (n === null || n === undefined || Number.isNaN(n)) return "–";
   return `$${intFmt.format(Math.round(n)).replace(/,/g, THIN)}`;
 }
 
@@ -72,7 +72,7 @@ export function heroParts(n: number): { lead: string; unit: "B" | "M" | "K" } {
 
 // Period parsing: "2025_1Q" -> "2025 Q1"
 export function fmtPeriod(period: string | null | undefined): string {
-  if (!period) return "—";
+  if (!period) return "–";
   const m = period.match(/^(\d{4})[_\s]*(\d)Q?$/);
   if (!m) return period;
   return `${m[1]} Q${m[2]}`;

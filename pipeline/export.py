@@ -297,14 +297,14 @@ def build_meta(
                 "deep_iso3": sorted(config.DEEP_STABLECOIN_RECEIVERS_ISO3),
             },
             "note": (
-                "Conservative defaults. Reviewers will probe these — every "
+                "Conservative defaults. Reviewers will probe these, so every "
                 "value is exposed in /methodology and the per-corridor "
                 "stablecoin block lists the actual percent applied."
             ),
         },
         "data_sources": {
             "rpw": {
-                "name": "World Bank — Remittance Prices Worldwide (RPW)",
+                "name": "World Bank Remittance Prices Worldwide (RPW)",
                 "url": "https://remittanceprices.worldbank.org/",
                 "release_file": config.RPW_PRIMARY_URL,
                 "retrieval_date": "2026-04-30",
@@ -315,7 +315,7 @@ def build_meta(
                 ),
             },
             "bilateral_remittance_matrix": {
-                "name": "World Bank / KNOMAD — Bilateral Remittance Estimates",
+                "name": "World Bank / KNOMAD Bilateral Remittance Estimates",
                 "indicator": "WB_KNOMAD_BRE",
                 "endpoint": config.BRM_API_URL,
                 "year": config.BRM_LATEST_YEAR,

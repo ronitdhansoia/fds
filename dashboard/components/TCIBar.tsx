@@ -8,7 +8,7 @@ export interface TCIBarProps {
   speedPenalty: number;
   /** SC counterfactual TCI shown beneath as a comparison row. */
   scCost?: number;
-  /** Domain max — defaults to 1.2× the actual sum so there's headroom. */
+  /** Domain max. Defaults to 1.2× the actual sum so there's headroom. */
   domain?: number;
 }
 

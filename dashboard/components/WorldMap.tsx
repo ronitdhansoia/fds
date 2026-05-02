@@ -26,7 +26,7 @@ function bucket(burdenB: number | null): number {
 interface WorldMapProps {
   senders: SenderRow[];
   topojsonUrl?: string;
-  /** Approximate aspect (defaults to 1.55 — natural earth at full width). */
+  /** Approximate aspect (defaults to 1.55, natural earth at full width). */
   aspect?: number;
 }
 
@@ -114,7 +114,7 @@ export function WorldMap({
       const name =
         (f.properties as { name?: string } | null | undefined)?.name ??
         sender?.source_name ??
-        "—";
+        "–";
       return {
         feature: f,
         iso3,
@@ -145,7 +145,7 @@ export function WorldMap({
             page-level overlay so we don't need a per-svg filter. */}
         <rect width={width} height={height} fill="var(--color-bg)" />
 
-        {/* Faintly drop a horizon line where the map sits — gives it gravity */}
+        {/* Faintly drop a horizon line where the map sits, gives it gravity */}
         <line
           x1={0}
           y1={height - 1}
@@ -192,7 +192,7 @@ export function WorldMap({
         </g>
       </svg>
 
-      {/* Legend — bottom left, hairline */}
+      {/* Legend: bottom left, hairline */}
       <div className="absolute bottom-3 left-0 flex items-center gap-3 font-mono text-overline tracking-[0.18em] uppercase text-text-3">
         <span>Annual fee burden</span>
         <div className="flex h-2 items-center gap-[2px]">
@@ -206,7 +206,7 @@ export function WorldMap({
           ))}
         </div>
         <span className="font-mono normal-case tracking-normal">
-          $0 — $2 B+
+          $0 to $2 B+
         </span>
       </div>
 

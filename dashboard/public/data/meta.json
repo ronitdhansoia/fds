@@ -113,18 +113,18 @@
         "VNM"
       ]
     },
-    "note": "Conservative defaults. Reviewers will probe these \u2014 every value is exposed in /methodology and the per-corridor stablecoin block lists the actual percent applied."
+    "note": "Conservative defaults. Reviewers will probe these, so every value is exposed in /methodology and the per-corridor stablecoin block lists the actual percent applied."
   },
   "data_sources": {
     "rpw": {
-      "name": "World Bank \u2014 Remittance Prices Worldwide (RPW)",
+      "name": "World Bank Remittance Prices Worldwide (RPW)",
       "url": "https://remittanceprices.worldbank.org/",
       "release_file": "https://datacatalogfiles.worldbank.org/ddh-published/0037898/DR0095523/rpw_dataset_2011_2025_q1.xlsx",
       "retrieval_date": "2026-04-30",
       "scope_note": "Modern sheet only ('Dataset (from Q2 2016)'). The legacy pre-2016 sheet ships an incompatible schema and is excluded from the headline analysis."
     },
     "bilateral_remittance_matrix": {
-      "name": "World Bank / KNOMAD \u2014 Bilateral Remittance Estimates",
+      "name": "World Bank / KNOMAD Bilateral Remittance Estimates",
       "indicator": "WB_KNOMAD_BRE",
       "endpoint": "https://data360api.worldbank.org/data360/data?DATABASE_ID=WB_KNOMAD&INDICATOR=WB_KNOMAD_BRE",
       "year": 2021,

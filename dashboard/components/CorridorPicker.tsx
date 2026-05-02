@@ -146,7 +146,7 @@ function Select({
         )}
       >
         <span className="font-display text-body-lg leading-tight tracking-[-0.01em] text-text">
-          {current?.name ?? "—"}
+          {current?.name ?? "–"}
         </span>
         <span className="font-mono text-overline tracking-[0.18em] text-text-3">
           {current?.code ?? "?"}

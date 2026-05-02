@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { fmtUsdCompact } from "@/lib/format";
 
 export interface TickerItem {
-  /** Region of the source country, uppercased — e.g. "SUB-SAHARAN AFRICA" */
+  /** Region of the source country, uppercased (e.g. "SUB-SAHARAN AFRICA") */
   region: string;
   /** Source country name, uppercased */
   source: string;

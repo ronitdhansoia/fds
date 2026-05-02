@@ -63,7 +63,7 @@ export default async function MethodologyPage() {
         <div className="overline">FDS PROJECT · BITS PILANI DUBAI · 2026</div>
 
         <h1 className="font-display text-section md:text-display mt-6 leading-[1.05] tracking-[-0.025em] text-text balance">
-          Methodology — every formula, every constant, every assumption.
+          Methodology. Every formula, every constant, every assumption.
         </h1>
 
         <p className="mt-7 text-body-lg text-text-2 leading-[1.75] pretty">
@@ -99,7 +99,7 @@ export default async function MethodologyPage() {
 
           <MathBlock
             expr="\text{TCI}_{s,d,p,q}(A) = \mathrm{fee}_\% + \mathrm{fxMargin}_\% + \kappa \cdot \max(0,\ d_\text{arrive} - 1)"
-            caption="Equation 1 — TCI"
+            caption="Equation 1 · TCI"
           />
 
           <dl className="mt-6 grid grid-cols-[max-content_1fr] gap-x-6 gap-y-5">
@@ -117,7 +117,7 @@ export default async function MethodologyPage() {
             </dt>
             <dd className="text-body text-text-2 leading-relaxed">
               RPW <span className="font-mono text-label">cc1 fx margin</span>{" "}
-              column — the spread the provider takes between its applied
+              column. This is the spread the provider takes between its applied
               exchange rate and the interbank mid.
             </dd>
 
@@ -128,9 +128,9 @@ export default async function MethodologyPage() {
               Daily cost-of-capital proxy for the receiving household. We
               calibrate{" "}
               <span className="font-mono text-label text-text">
-                κ = {a.gas_usd === a.gas_usd ? "0.10" : "—"}% / day
-              </span>{" "}
-              — at the upper end of informal short-term lending rates
+                κ = {a.gas_usd === a.gas_usd ? "0.10" : "–"}% / day
+              </span>
+              , at the upper end of informal short-term lending rates
               documented in remittance corridors with same-day alternatives.
               Setting <Math expr="\kappa = 0" /> leaves the ranking ordering
               substantively unchanged; the speed component is a small share of
@@ -159,7 +159,7 @@ export default async function MethodologyPage() {
             {meta.data_sources.rpw.retrieval_date}). The 4-quarter rolling mean
             is reported next to the headline value so single-quarter noise is
             visible. Throughout the dashboard the headline send amount is{" "}
-            <span className="font-mono text-label text-text">USD 200</span> —
+            <span className="font-mono text-label text-text">USD 200</span>,
             the SDG 10.c benchmark.
           </p>
         </section>
@@ -185,18 +185,18 @@ export default async function MethodologyPage() {
 
           <MathBlock
             expr="\text{SC}_\%(s, d, A) = \mathrm{onramp}(s) + \mathrm{offramp}(d) + \frac{\mathrm{gas}_{\$}}{A} \times 100 + \mathrm{fxSpread}(d)"
-            caption="Equation 2 — stablecoin cost"
+            caption="Equation 2 · stablecoin cost"
           />
 
           <MathBlock
             expr="\mathrm{savings}_\% = \max\bigl(0,\ \text{TCI} - \text{SC}\bigr) \quad\quad \mathrm{savings}_{\$/\text{yr}} = \frac{\mathrm{savings}_\%}{100} \cdot V_{(s,d)}"
-            caption="Equation 3 — corridor savings"
+            caption="Equation 3 · corridor savings"
           />
 
           <p className="mt-5 text-body-lg text-text-2 leading-[1.75] pretty">
             Where{" "}
             <span className="font-mono text-label text-text">V(s,d)</span> is
-            the {meta.global_savings?.volume_year ?? "—"} bilateral remittance
+            the {meta.global_savings?.volume_year ?? "–"} bilateral remittance
             volume from the World Bank / KNOMAD bilateral remittance estimates
             (indicator{" "}
             <span className="font-mono text-label text-text">
@@ -222,8 +222,8 @@ export default async function MethodologyPage() {
               ).toFixed(2)}{" "}
               B / yr
             </span>{" "}
-            — same order of magnitude, and an honest one. The gap is itself a
-            finding.
+            , the same order of magnitude, and an honest one. The gap is itself
+            a finding.
           </p>
 
           <Assumption
@@ -233,42 +233,42 @@ export default async function MethodologyPage() {
           />
 
           <Assumption
-            label="On-ramp — developed sender"
+            label="On-ramp · developed sender"
             value={`${a.onramp_pct.developed.toFixed(1)}%`}
             source={`Applied to ${a.onramp_pct.developed_iso3.length} OECD high-income senders. ISO-3 list is exposed below.`}
           />
           <Assumption
-            label="On-ramp — global default"
+            label="On-ramp · global default"
             value={`${a.onramp_pct.default.toFixed(1)}%`}
           />
           <Assumption
-            label="On-ramp — low-banked sender"
+            label="On-ramp · low-banked sender"
             value={`${a.onramp_pct.low_banked.toFixed(1)}%`}
             source={`Applied to ${a.onramp_pct.low_banked_iso3.length} senders where retail crypto on-ramps are thin (incl. GCC migrant workers paid via labour cards).`}
           />
 
           <Assumption
-            label="Off-ramp — top P2P market"
+            label="Off-ramp · top P2P market"
             value={`${a.offramp_pct.top_p2p.toFixed(1)}%`}
             source={`Applied to ${a.offramp_pct.top_p2p_iso3.length} receivers with established stablecoin → cash routes (${a.offramp_pct.top_p2p_iso3.join(", ")}).`}
           />
           <Assumption
-            label="Off-ramp — global default"
+            label="Off-ramp · global default"
             value={`${a.offramp_pct.default.toFixed(1)}%`}
           />
           <Assumption
-            label="Off-ramp — thin liquidity"
+            label="Off-ramp · thin liquidity"
             value={`${a.offramp_pct.thin_liquidity.toFixed(1)}%`}
             source={`Applied to ${a.offramp_pct.thin_liquidity_iso3.length} receivers where off-ramps are sanctioned, restricted, or genuinely illiquid.`}
           />
 
           <Assumption
-            label="Local FX spread — deep market"
+            label="Local FX spread · deep market"
             value={`${a.fx_spread_pct.deep.toFixed(1)}%`}
             source={`Applied to ${a.fx_spread_pct.deep_iso3.length} receivers with a deep local stablecoin market (P2P platforms quote tight spreads to local currency).`}
           />
           <Assumption
-            label="Local FX spread — default"
+            label="Local FX spread · default"
             value={`${a.fx_spread_pct.default.toFixed(1)}%`}
             source="Estimated from the parallel-market premium where the local currency does not have a deep stablecoin OTC desk."
           />
@@ -293,7 +293,7 @@ export default async function MethodologyPage() {
 
           <MathBlock
             expr="\text{TCI}_{i,p,q} = \beta_0 + \sum_{k \in K} \beta_k \cdot \mathbf{1}\{\text{firmType}_p = k\} + \alpha_{\text{corridor}_i} + \gamma_q + \varepsilon_{i,p,q}"
-            caption="Equation 4 — operator-class FE regression"
+            caption="Equation 4 · operator-class FE regression"
           />
 
           <p className="mt-5 text-body-lg text-text-2 leading-[1.75] pretty">
@@ -348,7 +348,7 @@ export default async function MethodologyPage() {
                 "Year",
                 `${meta.data_sources.bilateral_remittance_matrix.year} (latest available)`,
               ],
-              ["Unit", meta.data_sources.bilateral_remittance_matrix.unit ?? "—"],
+              ["Unit", meta.data_sources.bilateral_remittance_matrix.unit ?? "–"],
             ]}
           />
         </section>
@@ -410,7 +410,7 @@ export default async function MethodologyPage() {
               The regression establishes that bank-routed remittances are
               systematically more expensive than MTO-routed ones after
               corridor / quarter FE. It does not say they are causally
-              expensive — selection into firm type is endogenous.
+              expensive; selection into firm type is endogenous.
             </li>
           </ol>
         </section>
@@ -418,7 +418,7 @@ export default async function MethodologyPage() {
         <hr className="rule mt-16" />
 
         {/* ---------------------------------------------------------------- */}
-        {/* Sensitivity sliders — heading stays in the 680 px reading column;  */}
+        {/* Sensitivity sliders. Heading stays in the 680 px reading column;   */}
         {/* the widget breaks out below for the side-by-side layout.          */}
         {/* ---------------------------------------------------------------- */}
         <section id="sensitivity" className="mt-16">
@@ -436,7 +436,7 @@ export default async function MethodologyPage() {
         </section>
       </article>
 
-      {/* Wider container — escapes the 680 px reading column for the slider
+      {/* Wider container. Escapes the 680 px reading column for the slider
           panel side-by-side layout. Returns to the prose width below. */}
       <div className="mx-auto max-w-[1024px] px-6 mt-12">
         <SensitivitySliders

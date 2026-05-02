@@ -1,5 +1,5 @@
 // Strict types matching the JSON shapes produced by pipeline/export.py and
-// pipeline/aggregate.py. Edit here when the pipeline schema changes — never
+// pipeline/aggregate.py. Edit here when the pipeline schema changes; never
 // patch downstream components ad hoc.
 
 import "server-only";
@@ -285,7 +285,7 @@ export interface RegressionPayload {
 }
 
 // ---------------------------------------------------------------------------
-// Loaders — server-only, read from /public/data at request time. We rely on
+// Loaders. Server-only, read from /public/data at request time. We rely on
 // Next's static optimisation: every page that calls these is statically
 // rendered at build because nothing depends on the request.
 // ---------------------------------------------------------------------------

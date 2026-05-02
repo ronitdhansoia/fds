@@ -1,5 +1,5 @@
 // Auto-generated from i18n-iso-countries codes.json
-// 250 entries — M49 numeric (unpadded) -> ISO 3166-1 alpha-3.
+// 250 entries: M49 numeric (unpadded) -> ISO 3166-1 alpha-3.
 export const M49_TO_ISO3: Record<string, string> = {
   "10": "ATA",
   "100": "BGR",

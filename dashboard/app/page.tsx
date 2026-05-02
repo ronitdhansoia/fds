@@ -51,7 +51,7 @@ export default async function HomePage() {
       {/* HERO                                                                */}
       {/* ----------------------------------------------------------------- */}
       <section className="relative">
-        {/* warm shadow only under the hero — applied once, nothing else */}
+        {/* warm shadow only under the hero, applied once, nothing else */}
         <div className="hero-shadow pointer-events-none absolute inset-x-0 bottom-0 top-1/2 -z-[1]" aria-hidden />
 
         <div className="mx-auto grid max-w-[1280px] grid-cols-12 gap-6 px-6 pt-32 pb-32">
@@ -85,8 +85,8 @@ export default async function HomePage() {
                 cost of{" "}
                 <span className="num text-text">
                   {fmtPct(burden.headline.global_tci_volume_weighted_pct, 2)}
-                </span>{" "}
-                — fee, FX margin, and a penalty for slow settlement combined.
+                </span>
+                : fee, FX margin, and a penalty for slow settlement combined.
                 If the same flows ran on stablecoin rails, our conservative
                 counterfactual saves an additional{" "}
                 <span className="num text-accent-2">
@@ -107,7 +107,7 @@ export default async function HomePage() {
                 <Stat
                   label="Corridor volume"
                   value={fmtUsdCompact(matchedVolume)}
-                  note={`KNOMAD ${meta.global_savings?.volume_year ?? "—"}`}
+                  note={`KNOMAD ${meta.global_savings?.volume_year ?? "–"}`}
                 />
                 <Stat
                   label="Volume-weighted TCI"
@@ -138,7 +138,7 @@ export default async function HomePage() {
       {/* WORLD MAP                                                           */}
       {/* ----------------------------------------------------------------- */}
       <Section
-        overline="§1 — Where the burden falls"
+        overline="§1 · Where the burden falls"
         title={
           <>
             Senders.
@@ -166,7 +166,7 @@ export default async function HomePage() {
       {/* ----------------------------------------------------------------- */}
       <section className="mx-auto mt-32 grid max-w-[1280px] grid-cols-12 gap-x-6 gap-y-12 px-6">
         <header className="col-span-12 lg:col-span-3">
-          <div className="overline">§2 — Rankings</div>
+          <div className="overline">§2 · Rankings</div>
           <h2 className="mt-3 font-display text-subhead leading-[1.2] tracking-[-0.02em] text-text balance lg:sticky lg:top-20">
             The most expensive corridors and the biggest stablecoin savings.
           </h2>
@@ -224,7 +224,7 @@ export default async function HomePage() {
       {/* REGRESSION CALLOUT                                                  */}
       {/* ----------------------------------------------------------------- */}
       <Section
-        overline="§3 — Who charges most"
+        overline="§3 · Who charges most"
         title={
           <>
             After controlling for corridor and quarter, banks charge{" "}

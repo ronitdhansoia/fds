@@ -13,7 +13,7 @@ import { useEffect, useMemo, useState } from "react";
 import { fmtUsdCompact } from "@/lib/format";
 
 /* --------------------------------------------------------------------- */
-/*  Types — minimal shape the recompute needs from corridors.json         */
+/*  Types: minimal shape the recompute needs from corridors.json          */
 /* --------------------------------------------------------------------- */
 
 export interface SensitivityCorridor {
@@ -26,11 +26,11 @@ export interface SensitivityDefaults {
   /** % of send amount */
   onramp_pct: number;
   offramp_pct: number;
-  /** USD per transfer (network gas) — converted to a percentage at recompute time */
+  /** USD per transfer (network gas), converted to a percentage at recompute time */
   gas_usd: number;
   /** % of send amount */
   fx_spread_pct: number;
-  /** Pre-computed pipeline aggregate (tiered per-country logic) — shown alongside
+  /** Pre-computed pipeline aggregate (tiered per-country logic), shown alongside
    * the slider scenario as the "pipeline-precise" anchor. */
   pipeline_savings_usd: number;
 }
@@ -38,7 +38,7 @@ export interface SensitivityDefaults {
 interface SensitivitySlidersProps {
   corridors: SensitivityCorridor[];
   defaults: SensitivityDefaults;
-  /** Headline send amount (USD), e.g. 200 — used to convert gas USD → %. */
+  /** Headline send amount (USD), e.g. 200; used to convert gas USD → %. */
   sendAmount: number;
 }
 
@@ -132,7 +132,7 @@ function useUrlSyncedState(defaults: Record<ParamKey, number>) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Debounce URL writes — Radix Slider fires onValueChange many times per
+  // Debounce URL writes. Radix Slider fires onValueChange many times per
   // second on drag, which trips Firefox's 100-call replaceState rate limit
   // (and is wasteful in any browser). Only flush 350 ms after the last move.
   useEffect(() => {
@@ -159,7 +159,7 @@ function useUrlSyncedState(defaults: Record<ParamKey, number>) {
       try {
         window.history.replaceState(null, "", next);
       } catch {
-        /* swallow rate-limit errors — the next debounce tick will retry. */
+        /* swallow rate-limit errors; the next debounce tick will retry. */
       }
     }, 350);
     return () => window.clearTimeout(id);
@@ -222,19 +222,19 @@ export function SensitivitySliders({
 
   // First-render verification: warn (dev only) if pipeline-precise and the
   // slider-default-position scenario disagree by more than 0.1%. The two are
-  // expected to differ — pipeline uses per-country tiering, sliders apply a
-  // flat assumption — but we surface the gap so the reader sees it.
+  // expected to differ (pipeline uses per-country tiering, sliders apply a
+  // flat assumption), but we surface the gap so the reader sees it.
   useEffect(() => {
     const pipelineSavings = defaults.pipeline_savings_usd;
     if (!pipelineSavings) return;
     const gapPct = Math.abs(baseline.total - pipelineSavings) / pipelineSavings;
     if (gapPct > 0.001 && process.env.NODE_ENV === "development") {
-      // Diagnostic only — the gap is a documented design decision (flat
+      // Diagnostic only. The gap is a documented design decision (flat
       // sliders vs tiered pipeline). Don't pollute the prod console.
       // eslint-disable-next-line no-console
       console.debug(
         `[SensitivitySliders] flat defaults give $${(baseline.total / 1e9).toFixed(2)}B vs ` +
-          `pipeline-precise $${(pipelineSavings / 1e9).toFixed(2)}B — gap ${(gapPct * 100).toFixed(1)}%.`,
+          `pipeline-precise $${(pipelineSavings / 1e9).toFixed(2)}B (gap ${(gapPct * 100).toFixed(1)}%).`,
       );
     }
   }, [baseline.total, defaults.pipeline_savings_usd]);
@@ -329,8 +329,7 @@ export function SensitivitySliders({
             <span className="font-mono text-text-2">
               ({coveragePct.toFixed(0)}%)
             </span>
-            {" — "}
-            even at flat-cost <span className="font-mono text-text-2">{live.scCost.toFixed(2)}%</span> stablecoin assumption.
+            , even at a flat-cost <span className="font-mono text-text-2">{live.scCost.toFixed(2)}%</span> stablecoin assumption.
           </p>
         </div>
 
@@ -347,7 +346,7 @@ export function SensitivitySliders({
 }
 
 /* --------------------------------------------------------------------- */
-/*  Custom Slider — every Radix part overridden                           */
+/*  Custom Slider: every Radix part overridden                            */
 /* --------------------------------------------------------------------- */
 
 function ParamSlider({

@@ -43,7 +43,7 @@ export function ProviderList({
             </span>
             <span>
               <span className="font-display text-body-lg text-text">
-                {p.firm ?? "—"}
+                {p.firm ?? "–"}
               </span>
               <span className="ml-2 font-mono text-overline tracking-[0.18em] uppercase text-text-3">
                 {p.firm_type}

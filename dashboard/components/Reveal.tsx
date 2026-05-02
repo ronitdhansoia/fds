@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { ReactNode } from "react";
 
 /**
- * Stagger container for the orchestrated landing-page reveal — children that
+ * Stagger container for the orchestrated landing-page reveal. Children that
  * pass an `order` prop fade up with an 80 ms stagger / 400 ms ease-out.
  */
 

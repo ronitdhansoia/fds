@@ -60,7 +60,7 @@ export function HistoryChart({ history }: HistoryChartProps) {
         preserveAspectRatio="none"
         onMouseLeave={() => setHoverIdx(null)}
       >
-        {/* Y axis ticks — text only, no line */}
+        {/* Y axis ticks: text only, no line */}
         {ticksY.map((t) => {
           const y = padT + (1 - (t - yMin) / range) * innerH;
           return (

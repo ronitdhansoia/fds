@@ -52,7 +52,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
   const sc = bucket.stablecoin;
   const cheapest = bucket.providers[0];
 
-  // Picker data — sources alphabetically; per-source destinations alphabetically.
+  // Picker data: sources alphabetically; per-source destinations alphabetically.
   const sendersOptions = uniqOptions(
     corridors.map((c) => ({ code: c.source_code, name: c.source_name ?? c.source_code })),
   );
@@ -107,7 +107,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
             </span>
             {cheapest ? (
               <>
-                {" "}— or as little as{" "}
+                , or as little as{" "}
                 <span className="text-text num">{fmtPct(cheapest.tci_pct, 2)}</span>{" "}
                 via{" "}
                 <a
@@ -136,7 +136,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
       {/* Comparison bar                                                     */}
       {/* ----------------------------------------------------------------- */}
       <Section
-        overline="§1 — TCI breakdown"
+        overline="§1 · TCI breakdown"
         title="What the cost is made of."
         className="mt-20"
       >
@@ -177,7 +177,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
       {/* Provider list                                                      */}
       {/* ----------------------------------------------------------------- */}
       <Section
-        overline="§2 — Providers"
+        overline="§2 · Providers"
         title={
           <>
             {bucket.providers.length} options.
@@ -197,7 +197,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
       {/* ----------------------------------------------------------------- */}
       {bucket.history && bucket.history.length > 1 ? (
         <Section
-          overline="§3 — History"
+          overline="§3 · History"
           title="Quarterly TCI since the panel began."
           className="mt-32"
         >
@@ -215,7 +215,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
       {sc?.volume_usd_annual ? (
         <section className="mx-auto max-w-[1280px] px-6 mt-32 grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-3">
-            <div className="overline">§4 — Annual aggregate</div>
+            <div className="overline">§4 · Annual aggregate</div>
             <div className="mt-2 font-mono text-overline tracking-[0.18em] uppercase text-text-3">
               KNOMAD bilateral, {sc.volume_year}
             </div>
