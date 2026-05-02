@@ -450,14 +450,28 @@ export default async function MethodologyPage() {
         <hr className="rule mt-16" />
 
         <p className="mt-12 text-body text-text-3">
-          Built by Ronit Dhansoia. Source code:{" "}
+          Built by Ronit Dhansoia. Source code on{" "}
+          <a
+            href="https://github.com/ronitdhansoia/fds"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-text-2 hover:text-text underline underline-offset-4"
+          >
+            GitHub
+          </a>
+          .{" "}
           <Link href="/" className="text-text-2 hover:text-text underline underline-offset-4">
-            return to the index
+            Return to the index
           </Link>{" "}
           or read the{" "}
-          <Link href="/" className="text-text-2 hover:text-text underline underline-offset-4">
+          <a
+            href="https://github.com/ronitdhansoia/fds#readme"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-text-2 hover:text-text underline underline-offset-4"
+          >
             README
-          </Link>
+          </a>
           .
         </p>
       </article>
