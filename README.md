@@ -72,6 +72,19 @@ pnpm dev   # http://localhost:3000
 
 The dashboard reads JSON from `dashboard/public/data/`, which is a copy of `data/outputs/`. A small build hook keeps the two in sync; if you regenerate by hand, run `cp -R data/outputs/* dashboard/public/data/` before `pnpm build`.
 
+### Demo CLI
+
+For a live walkthrough there is a small interactive menu at `./mm`:
+
+```bash
+./mm           # interactive menu
+./mm 4         # data summary, no menu
+./mm summary   # same, by name
+./mm dash      # launch the dashboard dev server
+```
+
+Twelve options cover pipeline runs (full, cached, fast), inspection (top-20 corridors, regression coefficients, stablecoin summary), the dashboard (dev / build), and one-tap opens for the report PDF and GitHub repo. Bash only, no extra dependencies.
+
 ---
 
 ## Methodology
