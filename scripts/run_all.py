@@ -55,6 +55,11 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Re-use the existing files in data/raw/ instead of re-downloading.",
     )
+    parser.add_argument(
+        "--skip-figures",
+        action="store_true",
+        help="Skip Plotly+kaleido figure rendering (used by the CI cron, where Chrome is not installed).",
+    )
     parser.add_argument("-v", "--verbose", action="store_true")
     args = parser.parse_args(argv)
     logging.basicConfig(
@@ -112,12 +117,15 @@ def main(argv: list[str] | None = None) -> int:
     regression.write_regression_json(reg_results)
 
     # 8. Figures — render report PNGs
-    _step("8/8 figures — render report PNGs to report/figures/")
-    figures.fig_top20_corridors(snap, config.FIGURES_DIR / "fig01_top20_corridors.png")
-    figures.fig_world_map(burden_payload["senders"], config.FIGURES_DIR / "fig02_world_map.png")
-    figures.fig_operator_forest(reg_results, config.FIGURES_DIR / "fig03_operator_forest.png")
-    figures.fig_savings_scatter(savings, config.FIGURES_DIR / "fig04_stablecoin_scatter.png")
-    figures.fig_diaspora_burden(burden_payload["senders"], config.FIGURES_DIR / "fig05_diaspora_burden.png")
+    if args.skip_figures:
+        _step("8/8 figures — skipped (--skip-figures)")
+    else:
+        _step("8/8 figures — render report PNGs to report/figures/")
+        figures.fig_top20_corridors(snap, config.FIGURES_DIR / "fig01_top20_corridors.png")
+        figures.fig_world_map(burden_payload["senders"], config.FIGURES_DIR / "fig02_world_map.png")
+        figures.fig_operator_forest(reg_results, config.FIGURES_DIR / "fig03_operator_forest.png")
+        figures.fig_savings_scatter(savings, config.FIGURES_DIR / "fig04_stablecoin_scatter.png")
+        figures.fig_diaspora_burden(burden_payload["senders"], config.FIGURES_DIR / "fig05_diaspora_burden.png")
 
     elapsed = time.time() - t0
     print()

@@ -1,0 +1,57 @@
+name: Refresh data pipeline
+
+# Re-runs the Python pipeline against the latest World Bank RPW + KNOMAD
+# bilateral matrix and commits the regenerated JSON if anything changed.
+# The dashboard rebuilds automatically on the next Vercel deploy.
+
+on:
+  schedule:
+    # Every Monday at 04:00 UTC. RPW updates quarterly so most weeks are
+    # no-ops; the no-change branch below skips the commit when nothing moved.
+    - cron: "0 4 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Sync dependencies
+        run: uv sync
+
+      - name: Run pipeline
+        run: uv run python scripts/run_all.py --skip-figures
+
+      - name: Sync dashboard JSON
+        run: |
+          mkdir -p dashboard/public/data
+          cp -R data/outputs/. dashboard/public/data/
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/outputs dashboard/public/data
+          if git diff --staged --quiet; then
+            echo "No data changes since the last run."
+            exit 0
+          fi
+          stamp=$(date -u +"%Y-%m-%d")
+          git commit -m "chore(data): pipeline refresh ${stamp}"
+          git push

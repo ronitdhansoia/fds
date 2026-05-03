@@ -318,6 +318,31 @@ export function SensitivitySliders({
           </div>
         </div>
 
+        {/* Live formula */}
+        <div>
+          <div className="overline">Live formula · stablecoin cost</div>
+          <div className="mt-3 font-mono text-label leading-[1.85] tabular-nums">
+            <div className="text-text-3">
+              SC% = onramp + offramp + (gas / A) × 100 + fxSpread
+            </div>
+            <div className="text-text-2">
+              <span className="text-text-3">{"     = "}</span>
+              <span className="text-text">{params.onramp.toFixed(2)}%</span>
+              <span className="text-text-3"> + </span>
+              <span className="text-text">{params.offramp.toFixed(2)}%</span>
+              <span className="text-text-3"> + </span>
+              <span className="text-text">{((params.gas / sendAmount) * 100).toFixed(2)}%</span>
+              <span className="text-text-3"> + </span>
+              <span className="text-text">{params.fx.toFixed(2)}%</span>
+            </div>
+            <div>
+              <span className="text-text-3">{"     = "}</span>
+              <span className="text-accent-2 font-medium">{live.scCost.toFixed(2)}%</span>
+              <span className="text-text-3"> ({(live.scCost * sendAmount / 100).toFixed(2)} on USD {sendAmount})</span>
+            </div>
+          </div>
+        </div>
+
         {/* Coverage line */}
         <div>
           <div className="overline">Robustness</div>
