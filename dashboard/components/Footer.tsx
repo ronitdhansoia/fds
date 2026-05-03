@@ -2,7 +2,6 @@ import type { CorridorsMeta } from "@/lib/data";
 import { fmtPeriod } from "@/lib/format";
 
 export function Footer({ meta }: { meta: CorridorsMeta }) {
-  const generated = new Date(meta.generated_at).toISOString().slice(0, 10);
   const dataPeriod = fmtPeriod(meta.panel_last_period);
 
   return (
@@ -11,11 +10,6 @@ export function Footer({ meta }: { meta: CorridorsMeta }) {
         <span>
           Data <span className="text-text-2">·</span>{" "}
           <span className="text-text-2">{dataPeriod}</span>
-        </span>
-        <Sep />
-        <span>
-          Generated <span className="text-text-2">·</span>{" "}
-          <span className="text-text-2">{generated}</span>
         </span>
         <Sep />
         <a
