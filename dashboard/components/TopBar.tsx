@@ -1,6 +1,10 @@
 import Link from "next/link";
 
-export function TopBar({ active }: { active?: "home" | "methodology" | "explorer" }) {
+export function TopBar({
+  active,
+}: {
+  active?: "home" | "methodology" | "explorer" | "terminal";
+}) {
   return (
     <div className="sticky top-0 z-30 border-b border-border bg-bg">
       <div className="mx-auto flex h-12 max-w-[1280px] items-center justify-between px-6">
@@ -28,6 +32,12 @@ export function TopBar({ active }: { active?: "home" | "methodology" | "explorer
             className={`transition-colors hover:text-text ${active === "methodology" ? "text-text" : "text-text-3"}`}
           >
             Methodology
+          </Link>
+          <Link
+            href="/terminal"
+            className={`transition-colors hover:text-text ${active === "terminal" ? "text-text" : "text-text-3"}`}
+          >
+            Terminal
           </Link>
         </nav>
       </div>
