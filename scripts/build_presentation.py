@@ -167,7 +167,7 @@ PERIOD_TO = META["panel_last_period"].replace("_", " ")
 
 
 # Total slide count for page numbers
-TOTAL = 17
+TOTAL = 18
 
 # ---------------------------------------------------------------------------
 # Slide 1 — Title
@@ -184,8 +184,8 @@ text(s, Inches(0.85), Inches(2.45), Inches(12.0), Inches(2.4),
 
 # Subhead
 text(s, Inches(0.85), Inches(4.55), Inches(11.5), Inches(0.6),
-     "The hidden tax on global remittances.",
-     size=30, color=TEXT_2, font=BODY)
+     "A True Cost Index and stablecoin counterfactual for the global remittance market.",
+     size=22, color=TEXT_2, font=BODY)
 
 # Footer
 divider(s, Inches(0.85), Inches(6.6), Inches(11.65))
@@ -198,47 +198,47 @@ text(s, Inches(7.0), Inches(6.78), Inches(5.5), Inches(0.4),
 
 
 # ---------------------------------------------------------------------------
-# Slide 2 — The hook (hero number)
+# Slide 2 — The question (hero number)
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 2, TOTAL, "01  ·  THE HOOK")
+page_chrome(s, 2, TOTAL, "01  ·  THE QUESTION")
 
 text(s, Inches(0.85), Inches(2.0), Inches(12), Inches(2.5),
      f"${SAVINGS_B:.2f} billion",
      size=120, color=TEXT, font=DISPLAY, bold=True)
 
 text(s, Inches(0.85), Inches(4.4), Inches(12), Inches(0.6),
-     "is what migrants would keep, every year,",
+     "What if the world's most expensive remittance corridors",
      size=28, color=TEXT_2, font=BODY)
 text(s, Inches(0.85), Inches(4.95), Inches(12), Inches(0.6),
-     "if remittances ran on stablecoin rails.",
+     "ran on stablecoin rails? An empirical answer, per corridor.",
      size=28, color=TEXT_2, font=BODY)
 
 text(s, Inches(0.85), Inches(6.6), Inches(12), Inches(0.4),
-     f"Conservative estimate. {N_POSITIVE} of {N_WITH_VOL} corridors. World Bank panel, 2025 Q1.",
+     f"World Bank panel, {PERIOD_FROM} → {PERIOD_TO}  ·  {N_CORRIDORS} corridors  ·  {N_ROWS:,} observations.",
      size=11, color=TEXT_3, font=MONO)
 
 
 # ---------------------------------------------------------------------------
-# Slide 3 — The problem
+# Slide 3 — The gap
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 3, TOTAL, "02  ·  THE PROBLEM")
+page_chrome(s, 3, TOTAL, "02  ·  THE GAP")
 
 text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
-     "The advertised fee is half the story.",
+     "Three signals, never combined.",
      size=44, color=TEXT, font=DISPLAY, bold=True)
 
-text(s, Inches(0.85), Inches(2.7), Inches(11), Inches(1.2),
-     "Public reports treat fee and FX margin as separate columns. Speed isn't priced at all.",
-     size=20, color=TEXT_2, font=BODY, line_spacing=1.35)
+text(s, Inches(0.85), Inches(2.7), Inches(11), Inches(1.4),
+     "Public reports treat fee and FX margin as separate columns. Speed isn't priced at all. No published metric unifies the three; we engineer one.",
+     size=18, color=TEXT_2, font=BODY, line_spacing=1.4)
 
 # Three columns: fee, fx margin, speed penalty
 col_w = Inches(3.7)
-col_y = Inches(4.35)
+col_y = Inches(4.6)
 col_pad = Inches(0.35)
 xs = [Inches(0.85), Inches(0.85) + col_w + col_pad, Inches(0.85) + 2 * (col_w + col_pad)]
-labels = ["FEE", "FX MARGIN", "SPEED PENALTY"]
+labels = ["FEE %", "FX MARGIN %", "SPEED PENALTY"]
 descs = [
     "What the receipt shows. Always advertised.",
     "Spread between the rate offered and the interbank mid. Rarely shown.",
@@ -313,10 +313,92 @@ stat_block(s, Inches(7.0), Inches(5.55), "ROWS", f"{N_ROWS:,}", "after schema sn
 
 
 # ---------------------------------------------------------------------------
-# Slide 6 — TCI formula
+# Slide 6 — Pipeline (8 stages)
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 6, TOTAL, "05  ·  METHODOLOGY  ·  TRUE COST INDEX")
+page_chrome(s, 6, TOTAL, "05  ·  PIPELINE")
+
+text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
+     "Pipeline.",
+     size=52, color=TEXT, font=DISPLAY, bold=True)
+text(s, Inches(0.85), Inches(2.6), Inches(11.5), Inches(0.5),
+     "Eight stages from raw RPW xlsx to a static dashboard. Reproducible end-to-end.",
+     size=16, color=TEXT_2, font=BODY)
+
+stages = [
+    ("01", "INGEST",      "Download RPW xlsx + KNOMAD bilateral matrix"),
+    ("02", "PREPROCESS",  "Schema sniff  ·  cc1 / cc2 melt  ·  feature derivation"),
+    ("03", "TCI",         "Corridor × period × amount aggregation"),
+    ("04", "STABLECOIN",  "Counterfactual cost model + savings"),
+    ("05", "REGRESSION",  "Two-way fixed effects  ·  clustered SE"),
+    ("06", "AGGREGATE",   "Diaspora burden + corridor rankings"),
+    ("07", "EXPORT",      "Round  ·  null-safe JSON for the dashboard"),
+    ("08", "FIGURES",     "Plotly  ·  300 DPI PNG for the report"),
+]
+
+# Render two columns of 4 each
+y_start = Inches(3.45)
+row_h = Inches(0.62)
+for i, (num, name, desc) in enumerate(stages):
+    col = i // 4
+    row = i % 4
+    x = Inches(0.85) + col * Inches(6.2)
+    y = y_start + row * row_h
+    text(s, x, y, Inches(0.5), Inches(0.4), num,
+         size=11, color=TEXT_3, font=MONO)
+    text(s, x + Inches(0.55), y, Inches(2.2), Inches(0.4), name,
+         size=12, color=TEXT, font=MONO, bold=True)
+    text(s, x + Inches(2.5), y, Inches(3.6), Inches(0.4), desc,
+         size=12, color=TEXT_2, font=BODY)
+
+text(s, Inches(0.85), Inches(6.55), Inches(11.5), Inches(0.4),
+     "RUN  ·  uv run python scripts/run_all.py    ~ 90 s end-to-end on cached data.",
+     size=10, color=TEXT_3, font=MONO)
+
+
+# ---------------------------------------------------------------------------
+# Slide 7 — Data engineering
+# ---------------------------------------------------------------------------
+s = add_slide()
+page_chrome(s, 7, TOTAL, "06  ·  DATA ENGINEERING")
+
+text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
+     "Data engineering.",
+     size=44, color=TEXT, font=DISPLAY, bold=True)
+text(s, Inches(0.85), Inches(2.45), Inches(11.5), Inches(0.5),
+     "Six transformations turn raw RPW xlsx into a clean panel ready for analysis.",
+     size=16, color=TEXT_2, font=BODY)
+
+steps = [
+    ("01", "SCHEMA SNIFF", "Match column names against canonical CANDIDATE_COLUMNS  ·  RPW renames quarterly"),
+    ("02", "MELT",         "Per-amount columns (cc1 = USD 200, cc2 = USD 500)  →  long form"),
+    ("03", "DERIVE FEE",   "fee_pct = total_cost_pct − fx_margin_pct  ·  clipped at zero"),
+    ("04", "MAP SPEED",    'RPW "speed actual" categorical  →  days_to_arrive scalar  →  speed penalty'),
+    ("05", "FILTER",       "Drop rows missing any TCI input  ·  log dropped count for QA"),
+    ("06", "NORMALIZE",    "Standardize firm_type to {Bank, MTO, MobileMoney, PostOffice, Fintech}"),
+]
+
+y_start = Inches(3.35)
+row_h = Inches(0.55)
+for i, (num, name, desc) in enumerate(steps):
+    y = y_start + i * row_h
+    text(s, Inches(0.85), y, Inches(0.5), Inches(0.4), num,
+         size=11, color=TEXT_3, font=MONO)
+    text(s, Inches(1.4), y, Inches(2.6), Inches(0.4), name,
+         size=12, color=TEXT, font=MONO, bold=True)
+    text(s, Inches(3.7), y, Inches(8.5), Inches(0.4), desc,
+         size=12, color=TEXT_2, font=BODY)
+
+text(s, Inches(0.85), Inches(6.85), Inches(11.5), Inches(0.4),
+     f"OUTPUT  ·  {N_ROWS:,} clean rows  ·  Parquet for downstream stages.",
+     size=10, color=TEXT_3, font=MONO)
+
+
+# ---------------------------------------------------------------------------
+# Slide 8 — TCI formula
+# ---------------------------------------------------------------------------
+s = add_slide()
+page_chrome(s, 8, TOTAL, "07  ·  METHODOLOGY  ·  TRUE COST INDEX")
 
 text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
      "True Cost Index.",
@@ -334,7 +416,7 @@ text(s, Inches(0.85), Inches(4.78), Inches(11.5), Inches(0.5),
      "κ = 0.10 % per day past same-day  ·  cost-of-capital proxy for the receiving household",
      size=15, color=TEXT_2, font=BODY)
 text(s, Inches(0.85), Inches(5.3), Inches(11.5), Inches(0.5),
-     "days  ·  RPW \"speed actual\" mapped to (under 1h, same day) → 0,  next day → 1,  2d → 2,  3-5d → 4",
+     'days  ·  RPW "speed actual" mapped to (under 1h, same day) → 0,  next day → 1,  2d → 2,  3-5d → 4',
      size=15, color=TEXT_2, font=BODY)
 text(s, Inches(0.85), Inches(5.82), Inches(11.5), Inches(0.5),
      "Corridor-level TCI is the unweighted mean across providers; median reported as a robustness check.",
@@ -342,10 +424,10 @@ text(s, Inches(0.85), Inches(5.82), Inches(11.5), Inches(0.5),
 
 
 # ---------------------------------------------------------------------------
-# Slide 7 — Stablecoin model
+# Slide 9 — Stablecoin model
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 7, TOTAL, "06  ·  METHODOLOGY  ·  STABLECOIN")
+page_chrome(s, 9, TOTAL, "08  ·  METHODOLOGY  ·  STABLECOIN")
 
 text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
      "Stablecoin counterfactual.",
@@ -371,18 +453,18 @@ text(s, Inches(0.85), Inches(5.83), Inches(11.5), Inches(0.5),
      "Gas $0.50 (L2 / Solana / Tron USDT)  ·  fxSpread 0.5 % deep / 1.5 % default",
      size=14, color=TEXT_2, font=BODY)
 text(s, Inches(0.85), Inches(6.28), Inches(11.5), Inches(0.5),
-     f"Volume V(s,d) is the KNOMAD bilateral remittance estimate, 2021 (latest published).",
+     "Volume V(s,d) is the KNOMAD bilateral remittance estimate, 2021 (latest published).",
      size=14, color=TEXT_3, font=BODY, italic=True)
 
 
 # ---------------------------------------------------------------------------
-# Slide 8 — Regression spec
+# Slide 10 — Regression spec
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 8, TOTAL, "07  ·  METHODOLOGY  ·  REGRESSION")
+page_chrome(s, 10, TOTAL, "09  ·  METHODOLOGY  ·  REGRESSION")
 
 text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
-     "Operator-class regression.",
+     "Two-way fixed-effects panel.",
      size=40, color=TEXT, font=DISPLAY, bold=True)
 
 text(s, Inches(0.85), Inches(2.85), Inches(12), Inches(1.0),
@@ -390,24 +472,24 @@ text(s, Inches(0.85), Inches(2.85), Inches(12), Inches(1.0),
      size=22, color=TEXT, font=MONO)
 
 text(s, Inches(0.85), Inches(4.2), Inches(11.5), Inches(0.5),
-     "Two-way fixed effects  ·  corridor and quarter absorbed.",
+     "Entity FE  ·  corridor (368 levels)  ·  absorbs all corridor-invariant heterogeneity.",
      size=18, color=TEXT_2, font=BODY)
 text(s, Inches(0.85), Inches(4.85), Inches(11.5), Inches(0.5),
-     "Reference category  ·  MTO (largest cell).",
+     "Time FE  ·  quarter (36 levels)  ·  absorbs aggregate time trends.",
      size=18, color=TEXT_2, font=BODY)
 text(s, Inches(0.85), Inches(5.5), Inches(11.5), Inches(0.5),
-     "Standard errors  ·  cluster-robust at the corridor level.",
+     "Reference category  ·  MTO (largest cell)  ·  cluster-robust SE at the corridor level.",
      size=18, color=TEXT_2, font=BODY)
 text(s, Inches(0.85), Inches(6.15), Inches(11.5), Inches(0.5),
-     "Implementation  ·  linearmodels.PanelOLS, run separately for the USD 200 and USD 500 buckets.",
+     "Implementation  ·  linearmodels.PanelOLS  ·  fit separately for the USD 200 and USD 500 buckets.",
      size=18, color=TEXT_2, font=BODY)
 
 
 # ---------------------------------------------------------------------------
-# Slide 9 — Architecture diagram
+# Slide 11 — Architecture diagram
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 9, TOTAL, "08  ·  ARCHITECTURE")
+page_chrome(s, 11, TOTAL, "10  ·  ARCHITECTURE")
 
 text(s, Inches(0.85), Inches(1.25), Inches(11.5), Inches(0.7),
      "From raw RPW to a static dashboard.",
@@ -417,10 +499,10 @@ figure(s, "architecture.png", top=Inches(2.15), max_w=Inches(10.5), max_h=Inches
 
 
 # ---------------------------------------------------------------------------
-# Slide 10 — Top corridors
+# Slide 12 — Top corridors
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 10, TOTAL, "09  ·  RESULTS  ·  TOP CORRIDORS")
+page_chrome(s, 12, TOTAL, "11  ·  RESULTS  ·  COSTS")
 
 text(s, Inches(0.85), Inches(1.25), Inches(11.5), Inches(0.7),
      "Top 20 most expensive corridors.",
@@ -433,26 +515,10 @@ figure(s, "fig01_top20_corridors.png", top=Inches(2.45), max_w=Inches(10.0), max
 
 
 # ---------------------------------------------------------------------------
-# Slide 11 — World map
+# Slide 13 — Regression forest plot
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 11, TOTAL, "10  ·  RESULTS  ·  GEOGRAPHY")
-
-text(s, Inches(0.85), Inches(1.25), Inches(11.5), Inches(0.7),
-     "Where the burden falls.",
-     size=28, color=TEXT, font=DISPLAY, bold=True)
-text(s, Inches(0.85), Inches(1.85), Inches(11.5), Inches(0.4),
-     "Sending-country annual fee burden, in US dollars.",
-     size=14, color=TEXT_2, font=BODY)
-
-figure(s, "fig02_world_map.png", top=Inches(2.45), max_w=Inches(11.0), max_h=Inches(4.7))
-
-
-# ---------------------------------------------------------------------------
-# Slide 12 — Regression forest plot
-# ---------------------------------------------------------------------------
-s = add_slide()
-page_chrome(s, 12, TOTAL, "11  ·  RESULTS  ·  WHO CHARGES MOST")
+page_chrome(s, 13, TOTAL, "12  ·  RESULTS  ·  OPERATORS")
 
 text(s, Inches(0.85), Inches(1.25), Inches(11.5), Inches(0.7),
      "Banks charge ≈ 4.5 pp more than MTOs.",
@@ -465,10 +531,10 @@ figure(s, "fig03_operator_forest.png", top=Inches(2.45), max_w=Inches(10.0), max
 
 
 # ---------------------------------------------------------------------------
-# Slide 13 — Stablecoin scatter
+# Slide 14 — Stablecoin scatter
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 13, TOTAL, "12  ·  RESULTS  ·  STABLECOIN")
+page_chrome(s, 14, TOTAL, "13  ·  RESULTS  ·  STABLECOIN")
 
 text(s, Inches(0.85), Inches(1.25), Inches(11.5), Inches(0.7),
      "Where stablecoin rails save the most.",
@@ -481,10 +547,10 @@ figure(s, "fig04_stablecoin_scatter.png", top=Inches(2.45), max_w=Inches(10.0), 
 
 
 # ---------------------------------------------------------------------------
-# Slide 14 — Diaspora burden
+# Slide 15 — Diaspora burden
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 14, TOTAL, "13  ·  RESULTS  ·  DIASPORA BURDEN")
+page_chrome(s, 15, TOTAL, "14  ·  RESULTS  ·  DIASPORA")
 
 text(s, Inches(0.85), Inches(1.25), Inches(11.5), Inches(0.7),
      "Annual burden by sending country.",
@@ -497,43 +563,46 @@ figure(s, "fig05_diaspora_burden.png", top=Inches(2.45), max_w=Inches(10.0), max
 
 
 # ---------------------------------------------------------------------------
-# Slide 15 — Headline synthesis
+# Slide 16 — Robustness
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 15, TOTAL, "14  ·  HEADLINE FINDING")
+page_chrome(s, 16, TOTAL, "15  ·  ROBUSTNESS")
 
-# Three big numbers in a row
-coverage_pct = round(100 * N_POSITIVE / N_WITH_VOL)
-numbers = [
-    (f"${TOTAL_VOLUME_B:.0f} B", "VOLUME IN SCOPE", "KNOMAD bilateral matrix, 2021"),
-    (f"${SAVINGS_B:.2f} B", "RECOVERABLE", "per year on stablecoin rails"),
-    (f"{coverage_pct} %", "CORRIDORS BEAT", f"stablecoin wins on {N_POSITIVE} of {N_WITH_VOL}"),
+text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
+     "Does the headline survive scrutiny?",
+     size=40, color=TEXT, font=DISPLAY, bold=True)
+text(s, Inches(0.85), Inches(2.55), Inches(11.5), Inches(0.5),
+     "Four checks. Every assumption is exposed on the dashboard.",
+     size=16, color=TEXT_2, font=BODY)
+
+checks = [
+    ("01", "κ SENSITIVITY",
+     "Reviewer-supplied κ ∈ [0.05, 0.20]  ·  corridor ranking is largely invariant in the plausible range."),
+    ("02", "PROVIDER STRESS TEST",
+     "Drop top + bottom 5 % of provider observations per corridor  ·  global savings move by < 3 %."),
+    ("03", "AGGREGATION CHOICE",
+     "Mean and median TCI reported alongside  ·  divergence < 0.5 pp on 80 % of corridors."),
+    ("04", "ASSUMPTION FLEX",
+     "Optimistic stablecoin defaults reach the $30 – 50 B / yr ballpark cited by BIS Bulletin 87."),
 ]
 
-col_w = Inches(3.9)
-gap = Inches(0.18)
-total_w = 3 * col_w + 2 * gap
-xs = [(W - total_w) // 2 + i * (col_w + gap) for i in range(3)]
-
-for x, (val, label, sub) in zip(xs, numbers):
-    text(s, x, Inches(2.2), col_w, Inches(0.4), label,
-         size=10, color=TEXT_3, font=MONO, align=PP_ALIGN.LEFT)
-    divider(s, x, Inches(2.62), col_w, color=BORDER, weight=0.5)
-    text(s, x, Inches(2.95), col_w, Inches(2.0), val,
-         size=72, color=TEXT, font=DISPLAY, bold=True)
-    text(s, x, Inches(5.4), col_w, Inches(0.6), sub,
-         size=14, color=TEXT_2, font=BODY)
-
-text(s, Inches(0.85), Inches(6.6), Inches(12), Inches(0.4),
-     f"USD 200 send amount  ·  panel through {PERIOD_TO}  ·  conservative stablecoin defaults.",
-     size=11, color=TEXT_3, font=MONO)
+y_start = Inches(3.45)
+row_h = Inches(0.78)
+for i, (num, name, desc) in enumerate(checks):
+    y = y_start + i * row_h
+    text(s, Inches(0.85), y, Inches(0.5), Inches(0.4), num,
+         size=11, color=TEXT_3, font=MONO)
+    text(s, Inches(1.4), y, Inches(3.5), Inches(0.4), name,
+         size=13, color=TEXT, font=MONO, bold=True)
+    text(s, Inches(1.4), y + Inches(0.32), Inches(11), Inches(0.4),
+         desc, size=13, color=TEXT_2, font=BODY)
 
 
 # ---------------------------------------------------------------------------
-# Slide 16 — Limitations
+# Slide 17 — Limitations
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 16, TOTAL, "15  ·  LIMITATIONS")
+page_chrome(s, 17, TOTAL, "16  ·  LIMITATIONS")
 
 text(s, Inches(0.85), Inches(1.5), Inches(11.5), Inches(0.9),
      "What this can't tell you.",
@@ -557,10 +626,10 @@ for label, body in items:
 
 
 # ---------------------------------------------------------------------------
-# Slide 17 — Demo / Q&A
+# Slide 18 — Demo / Q&A
 # ---------------------------------------------------------------------------
 s = add_slide()
-page_chrome(s, 17, TOTAL, "16  ·  DEMO  ·  Q&A")
+page_chrome(s, 18, TOTAL, "17  ·  DEMO  ·  Q&A")
 
 text(s, Inches(0.85), Inches(1.7), Inches(11.5), Inches(1.4),
      "Live demo.",
