@@ -28,9 +28,7 @@ from pipeline import config, stablecoin, tci
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
+
 
 
 def _round(x: Any, n: int = 4) -> float | None:
@@ -40,12 +38,10 @@ def _round(x: Any, n: int = 4) -> float | None:
         return None
     return round(float(x), n)
 
-
 def _maybe_int(x: Any) -> int | None:
     if x is None or (isinstance(x, float) and np.isnan(x)):
         return None
     return int(x)
-
 
 def _maybe_str(x: Any) -> str | None:
     if x is None or (isinstance(x, float) and np.isnan(x)):
@@ -53,9 +49,7 @@ def _maybe_str(x: Any) -> str | None:
     return str(x)
 
 
-# ---------------------------------------------------------------------------
-# Per-corridor burden assembly
-# ---------------------------------------------------------------------------
+
 
 
 def build_corridor_burden(savings: pd.DataFrame) -> pd.DataFrame:
@@ -78,9 +72,7 @@ def build_corridor_burden(savings: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# ---------------------------------------------------------------------------
-# Sending-country aggregation
-# ---------------------------------------------------------------------------
+
 
 
 def by_sending_country(df: pd.DataFrame) -> pd.DataFrame:
@@ -109,7 +101,6 @@ def by_sending_country(df: pd.DataFrame) -> pd.DataFrame:
     )
     return grouped.sort_values("fee_burden_usd", ascending=False).reset_index(drop=True)
 
-
 def top_destinations_per_sender(
     df: pd.DataFrame, top_n: int = 5
 ) -> pd.DataFrame:
@@ -132,9 +123,7 @@ def top_destinations_per_sender(
     return sorted_df[sorted_df["rank"] <= top_n].reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# Receiving-country aggregation
-# ---------------------------------------------------------------------------
+
 
 
 def by_receiving_country(df: pd.DataFrame) -> pd.DataFrame:
@@ -155,9 +144,7 @@ def by_receiving_country(df: pd.DataFrame) -> pd.DataFrame:
     return grouped.sort_values("inflow_usd", ascending=False).reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# Global rankings + headline
-# ---------------------------------------------------------------------------
+
 
 
 def headline_totals(df: pd.DataFrame) -> dict[str, Any]:
@@ -175,7 +162,6 @@ def headline_totals(df: pd.DataFrame) -> dict[str, Any]:
         ),
     }
 
-
 def ranking_payload(df: pd.DataFrame, n: int = 20) -> dict[str, list[dict[str, Any]]]:
     """Top-N rankings the dashboard renders on the landing page."""
     expensive = df.sort_values("tci_pct_mean", ascending=False).head(n)
@@ -188,7 +174,6 @@ def ranking_payload(df: pd.DataFrame, n: int = 20) -> dict[str, list[dict[str, A
         "biggest_absolute_savings": [_corridor_row(r) for _, r in biggest_savings.iterrows()],
         "biggest_fee_burden": [_corridor_row(r) for _, r in biggest_burden.iterrows()],
     }
-
 
 def _corridor_row(r: pd.Series) -> dict[str, Any]:
     return {
@@ -207,9 +192,7 @@ def _corridor_row(r: pd.Series) -> dict[str, Any]:
     }
 
 
-# ---------------------------------------------------------------------------
-# JSON envelope
-# ---------------------------------------------------------------------------
+
 
 
 def _sender_row(r: pd.Series, top_dests: pd.DataFrame | None = None) -> dict[str, Any]:
@@ -245,7 +228,6 @@ def _sender_row(r: pd.Series, top_dests: pd.DataFrame | None = None) -> dict[str
         ]
     return base
 
-
 def _receiver_row(r: pd.Series) -> dict[str, Any]:
     return {
         "destination_code": _maybe_str(r["destination_code"]),
@@ -258,7 +240,6 @@ def _receiver_row(r: pd.Series) -> dict[str, Any]:
         "tci_volume_weighted_pct": _round(r["tci_volume_weighted_pct"]),
         "tci_simple_mean_pct": _round(r["tci_simple_mean"]),
     }
-
 
 def build_payload(savings: pd.DataFrame) -> dict[str, Any]:
     df = build_corridor_burden(savings)
@@ -281,7 +262,6 @@ def build_payload(savings: pd.DataFrame) -> dict[str, Any]:
         "rankings": rankings,
     }
 
-
 def write_json(
     payload: dict[str, Any],
     out_path: Path = config.DIASPORA_BURDEN_JSON,
@@ -293,9 +273,7 @@ def write_json(
     logger.info("wrote %s (%.1f KB)", out_path, size_kb)
 
 
-# ---------------------------------------------------------------------------
-# Pretty-print
-# ---------------------------------------------------------------------------
+
 
 
 def _fmt_b(x: float | None) -> str:
@@ -303,12 +281,10 @@ def _fmt_b(x: float | None) -> str:
         return "n/a"
     return f"${x / 1e9:>6.2f} B"
 
-
 def _fmt_m(x: float | None) -> str:
     if x is None or np.isnan(x):
         return "n/a"
     return f"${x / 1e6:>9.1f} M"
-
 
 def print_summary(payload: dict[str, Any]) -> None:
     h = payload["headline"]
@@ -360,16 +336,13 @@ def print_summary(payload: dict[str, Any]) -> None:
     print("=" * 90)
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+
 
 
 def compute() -> dict[str, Any]:
     """Run the full Phase 4 aggregation pipeline and return the JSON payload."""
     savings, _summary = stablecoin.compute()
     return build_payload(savings)
-
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Diaspora burden aggregation.")
@@ -386,7 +359,6 @@ def main(argv: list[str] | None = None) -> int:
     if args.write_json:
         write_json(payload)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

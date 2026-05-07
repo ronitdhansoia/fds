@@ -32,9 +32,7 @@ from pipeline import config
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Data load
-# ---------------------------------------------------------------------------
+
 
 
 def load_clean_panel(path: Path = config.PROCESSED_RPW_PATH) -> pd.DataFrame:
@@ -47,12 +45,11 @@ def load_clean_panel(path: Path = config.PROCESSED_RPW_PATH) -> pd.DataFrame:
     return df
 
 
-# ---------------------------------------------------------------------------
-# Aggregation primitives
-# ---------------------------------------------------------------------------
 
-# Component columns whose corridor-level mean we want to track. Matches the
-# decomposition surfaced on the dashboard's TCIBreakdown.
+
+
+
+
 _TCI_COMPONENT_COLS: tuple[str, ...] = (
     "fee_pct",
     "fx_margin_pct",
@@ -61,7 +58,6 @@ _TCI_COMPONENT_COLS: tuple[str, ...] = (
     "total_cost_pct",
     "days_to_arrive",
 )
-
 
 def _agg_by(group_cols: list[str], df: pd.DataFrame) -> pd.DataFrame:
     """Mean of every TCI component, plus n_providers and tci median."""
@@ -74,7 +70,6 @@ def _agg_by(group_cols: list[str], df: pd.DataFrame) -> pd.DataFrame:
     aggs["n_providers"] = ("firm", "nunique")
     aggs["n_observations"] = ("tci_pct", "size")
     return df.groupby(group_cols, dropna=False).agg(**aggs).reset_index()
-
 
 def corridor_period_tci(df: pd.DataFrame) -> pd.DataFrame:
     """One row per (corridor × period × send_amount) with the headline metrics."""
@@ -97,7 +92,6 @@ def corridor_period_tci(df: pd.DataFrame) -> pd.DataFrame:
         drop=True
     )
 
-
 def rolling_4q_tci(period_panel: pd.DataFrame) -> pd.DataFrame:
     """Add 4-quarter rolling means for the headline metrics."""
     panel = period_panel.copy().sort_values(
@@ -112,17 +106,14 @@ def rolling_4q_tci(period_panel: pd.DataFrame) -> pd.DataFrame:
     return panel
 
 
-# ---------------------------------------------------------------------------
-# Headline summaries
-# ---------------------------------------------------------------------------
+
 
 
 @dataclass(frozen=True)
 class HeadlineRanking:
     send_amount_usd: int
     period: pd.Timestamp
-    table: pd.DataFrame  # one row per corridor
-
+    table: pd.DataFrame
 
 def latest_corridor_snapshot(period_panel: pd.DataFrame) -> pd.DataFrame:
     """Latest quarter per (corridor × send_amount), with rolling-4q context."""
@@ -133,7 +124,6 @@ def latest_corridor_snapshot(period_panel: pd.DataFrame) -> pd.DataFrame:
     snap = rolled.loc[idx].reset_index(drop=True)
     return snap
 
-
 def top_n_expensive(
     snapshot: pd.DataFrame, send_amount_usd: int, n: int = 20, min_providers: int = 3
 ) -> pd.DataFrame:
@@ -141,7 +131,6 @@ def top_n_expensive(
     sub = snapshot[snapshot["send_amount_bucket_usd"] == send_amount_usd]
     sub = sub[sub["n_providers"] >= min_providers]
     return sub.sort_values("tci_pct_mean", ascending=False).head(n).reset_index(drop=True)
-
 
 def cheapest_corridors(
     snapshot: pd.DataFrame, send_amount_usd: int, n: int = 20, min_providers: int = 3
@@ -151,15 +140,12 @@ def cheapest_corridors(
     return sub.sort_values("tci_pct_mean", ascending=True).head(n).reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# Pretty print
-# ---------------------------------------------------------------------------
+
 
 
 def _format_corridor_label(row: pd.Series, max_len: int = 46) -> str:
     label = f"{row['source_name']} → {row['destination_name']}"
     return (label[: max_len - 1] + "…") if len(label) > max_len else label
-
 
 def print_top_n(snapshot: pd.DataFrame, send_amount_usd: int = 200, n: int = 20) -> None:
     period = snapshot["period_dt"].max()
@@ -207,9 +193,7 @@ def print_top_n(snapshot: pd.DataFrame, send_amount_usd: int = 200, n: int = 20)
     print("=" * 86)
 
 
-# ---------------------------------------------------------------------------
-# Provider breakdown for the corridor explorer page
-# ---------------------------------------------------------------------------
+
 
 
 def extreme_corridor_robustness(
@@ -238,13 +222,13 @@ def extreme_corridor_robustness(
     if not target_ids:
         return []
 
-    # Latest-period per-provider rows for the same send-amount bucket.
+
     sub = df[df["send_amount_bucket_usd"] == send_amount_usd].copy()
     latest = sub["period_dt"].max()
     rows = sub[sub["period_dt"] == latest]
 
-    # Helper: compute the three aggregation alternatives at corridor level
-    # for *every* corridor, then look up the ranks for our targets.
+
+
     def _agg_alts(grp: pd.DataFrame) -> pd.Series:
         n = grp["firm"].nunique()
         if n < min_providers:
@@ -302,7 +286,6 @@ def extreme_corridor_robustness(
         })
     return out
 
-
 def latest_provider_breakdown(df: pd.DataFrame) -> pd.DataFrame:
     """For each corridor × send_amount, the latest-quarter per-provider rows."""
     cols = [
@@ -320,7 +303,7 @@ def latest_provider_breakdown(df: pd.DataFrame) -> pd.DataFrame:
         "days_to_arrive",
     ]
     sub = df[cols].copy()
-    # latest period per corridor × bucket
+
     latest = sub.groupby(["corridor_id", "send_amount_bucket_usd"])["period_dt"].transform("max")
     keep = sub["period_dt"] == latest
     return sub[keep].sort_values(
@@ -328,9 +311,7 @@ def latest_provider_breakdown(df: pd.DataFrame) -> pd.DataFrame:
     ).reset_index(drop=True)
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -354,7 +335,6 @@ def main(argv: list[str] | None = None) -> int:
     snap = latest_corridor_snapshot(panel)
     print_top_n(snap, send_amount_usd=args.amount, n=args.n)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

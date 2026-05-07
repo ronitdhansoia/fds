@@ -1,25 +1,12 @@
 #!/usr/bin/env bash
-# MigrantMoney CLI · pure-bash TUI for live demos.
-#
-#   ./mm              interactive menu
-#   ./mm <n>          run item n directly and exit (e.g. ./mm 4)
-#   ./mm <name>       same, by alias (e.g. ./mm summary)
-#
-# Zero external deps. Tuned for macOS Terminal.app and iTerm2.
 
 PROJECT_ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$PROJECT_ROOT" || exit 1
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Geometry
-# ─────────────────────────────────────────────────────────────────────────
 COLS=$(tput cols 2>/dev/null || echo 88)
 [ "$COLS" -lt 80 ] && COLS=80
 [ "$COLS" -gt 96 ] && COLS=96
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Palette  ·  amber accent over greyscale, mirrors the dashboard
-# ─────────────────────────────────────────────────────────────────────────
 E=$'\033'
 RST="$E[0m"
 B="$E[1m"; D="$E[2m"
@@ -34,9 +21,6 @@ HIDE="$E[?25l"
 SHOW="$E[?25h"
 CLR="$E[2J$E[H"
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Frame helpers
-# ─────────────────────────────────────────────────────────────────────────
 _strip() { printf '%s' "$1" | sed -E "s/$E\\[[0-9;]*m//g"; }
 
 hr() {
@@ -69,9 +53,6 @@ box_empty() {
   printf '%s│%*s│%s\n' "$T3" "$((COLS - 2))" "" "$RST"
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Meta cache · read once from data/outputs/meta.json
-# ─────────────────────────────────────────────────────────────────────────
 META_AVAILABLE=false
 META_CORRIDORS="?"
 META_PROVIDERS="?"
@@ -115,14 +96,12 @@ PY
   fi
 }
 
-# Format big numbers with comma thousands separators.
 _thousands() {
   printf '%s' "$1" | python3 -c 'import sys; v=sys.stdin.read().strip()
 try: print(f"{int(v):,}")
 except ValueError: print(v)'
 }
 
-# Status badges for the menu header.
 git_state() {
   if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     if [ -z "$(git status --porcelain 2>/dev/null)" ]; then
@@ -143,14 +122,10 @@ data_state() {
   fi
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Boot animation · ~2 s total
-# ─────────────────────────────────────────────────────────────────────────
 boot() {
   printf '%s%s' "$HIDE" "$CLR"
   printf '\n\n\n\n'
 
-  # Type the project name letter-by-letter, centered.
   local name="MIGRANTMONEY"
   local pad=$(( (COLS - ${#name}) / 2 ))
   printf '%*s' "$pad" ""
@@ -169,7 +144,6 @@ boot() {
   printf '\n\n'
   sleep 0.30
 
-  # Hairline + cascading stats reveal
   if [ "$META_AVAILABLE" = true ]; then
     local stats_w=58
     local stats_pad=$(( (COLS - stats_w) / 2 ))
@@ -199,9 +173,6 @@ boot() {
   printf '%s' "$SHOW"
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Main menu
-# ─────────────────────────────────────────────────────────────────────────
 draw_menu() {
   printf '%s' "$CLR"
   printf '\n'
@@ -209,7 +180,6 @@ draw_menu() {
   local now
   now=$(date '+%H:%M  ·  %a %d %b')
 
-  # Title row: bold name (left) + meta (right)
   local title_left="${B}${HI}MigrantMoney${RST}"
   local title_right="${T3}v1.0  ·  ${now}${RST}"
   local left_raw="MigrantMoney"
@@ -218,7 +188,6 @@ draw_menu() {
   local gap=$(( COLS - ${#left_raw} - ${#right_raw} - 6 ))
   [ "$gap" -lt 0 ] && gap=0
 
-  # Status row: data + git
   local status_left="$(data_state)"
   local status_right="$(git_state)"
   local sl_raw sr_raw
@@ -295,7 +264,6 @@ draw_section() {
   done
 }
 
-# Brief launching animation between menu pick and command output.
 launching() {
   local label="$1"
   printf '%s' "$CLR"
@@ -310,9 +278,6 @@ launching() {
   printf '\r%*s\r' 60 ''
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Command headers
-# ─────────────────────────────────────────────────────────────────────────
 header() {
   printf '%s' "$CLR"
   printf '\n  %s▸%s %s%s%s\n\n' "$AMB" "$RST" "$T2" "$1" "$RST"
@@ -320,9 +285,6 @@ header() {
   printf '\n'
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Pre-flight: detect missing tools without crashing
-# ─────────────────────────────────────────────────────────────────────────
 require() {
   command -v "$1" >/dev/null 2>&1 && return 0
   printf '\n  %s!%s %s not on PATH.\n  %sinstall with:%s %s\n\n' \
@@ -330,9 +292,6 @@ require() {
   return 1
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Pipeline command handlers
-# ─────────────────────────────────────────────────────────────────────────
 run_pipeline_full() {
   header "pipeline · full run"
   require uv "https://docs.astral.sh/uv/" || return 1
@@ -392,7 +351,6 @@ print()
 hairline()
 print()
 
-# Top 5 most expensive corridors with horizontal bars.
 try:
     payload = json.load(open('data/outputs/corridors.json'))
     corridors = payload.get('corridors', [])
@@ -474,9 +432,6 @@ show_tree() {
   fi
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Prompt + dispatch
-# ─────────────────────────────────────────────────────────────────────────
 prompt() {
   printf "  %s▸%s " "$AMB" "$RST"
   read -r choice
@@ -499,7 +454,6 @@ normalize() {
   esac
 }
 
-# Resolve a choice string into a canonical label for the launching animation.
 label_for() {
   case "$(normalize "$1")" in
     1)  echo "pipeline · full run" ;;
@@ -547,18 +501,12 @@ dispatch() {
   esac
 }
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Direct mode  ·  ./mm <n|name>  runs once and exits
-# ─────────────────────────────────────────────────────────────────────────
 read_meta
 if [ $# -gt 0 ]; then
   dispatch "$1"
   exit $?
 fi
 
-# ─────────────────────────────────────────────────────────────────────────
-#  Interactive mode
-# ─────────────────────────────────────────────────────────────────────────
 trap 'printf "%s" "$SHOW"; exit 0' INT TERM
 
 boot
@@ -566,7 +514,6 @@ while true; do
   draw_menu
   prompt
 
-  # Empty input or 'q' handled in dispatch.
   if [ -z "$choice" ]; then
     continue
   fi
@@ -581,7 +528,6 @@ while true; do
   fi
 
   if dispatch "$choice"; then
-    # Dashboard dev server blocks until ctrl+c; no need to wait.
     if [ "$(normalize "$choice")" != "8" ]; then
       press_enter
     fi

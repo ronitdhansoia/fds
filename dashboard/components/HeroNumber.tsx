@@ -11,11 +11,11 @@ import { useEffect } from "react";
 import { heroParts } from "@/lib/format";
 
 interface HeroNumberProps {
-  /** Final value, in raw USD. e.g. 24_210_000_000 */
+
   value: number;
-  /** Override the displayed unit (B / M / K). Auto-derived if omitted. */
+
   unit?: "B" | "M" | "K";
-  /** Animation duration ms. */
+
   duration?: number;
 }
 
@@ -37,14 +37,14 @@ export function HeroNumber({ value, unit, duration = 1200 }: HeroNumberProps) {
     if (reduce) return;
     const ctl = animate(mv, target, {
       duration: duration / 1000,
-      ease: [0.16, 1, 0.3, 1], // easeOutExpo-ish
+      ease: [0.16, 1, 0.3, 1],
     });
     return () => ctl.stop();
   }, [mv, target, duration, reduce]);
 
-  // Hero numbers use Fraunces with high optical size + tabular figures.
-  // Force opsz=144 inline so the number reads as the display variant of the
-  // axis even though we may be at a smaller px size on mobile.
+
+
+
   return (
     <span
       className="leading-[0.92] tracking-[-0.04em] inline-block"

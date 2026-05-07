@@ -1,13 +1,7 @@
 name: Refresh data pipeline
 
-# Re-runs the Python pipeline against the latest World Bank RPW + KNOMAD
-# bilateral matrix and commits the regenerated JSON if anything changed.
-# The dashboard rebuilds automatically on the next Vercel deploy.
-
 on:
   schedule:
-    # Every Monday at 04:00 UTC. RPW updates quarterly so most weeks are
-    # no-ops; the no-change branch below skips the commit when nothing moved.
     - cron: "0 4 * * 1"
   workflow_dispatch:
 

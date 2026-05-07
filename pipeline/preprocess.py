@@ -29,15 +29,12 @@ from pipeline import config
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Schema sniffing
-# ---------------------------------------------------------------------------
+
 
 
 def _norm_header(value: object) -> str:
     """Normalise a header for fuzzy matching: lowercase, alnum only."""
     return "".join(ch for ch in str(value).lower() if ch.isalnum())
-
 
 def resolve_columns(headers: list[str]) -> dict[str, str]:
     """Return {canonical_name: source_header} for the columns we found."""
@@ -50,7 +47,6 @@ def resolve_columns(headers: list[str]) -> dict[str, str]:
                 found[canonical] = norm_to_actual[key]
                 break
     return found
-
 
 REQUIRED_CANONICAL: tuple[str, ...] = (
     "period",
@@ -65,9 +61,7 @@ REQUIRED_CANONICAL: tuple[str, ...] = (
 )
 
 
-# ---------------------------------------------------------------------------
-# Reading
-# ---------------------------------------------------------------------------
+
 
 
 def read_rpw_workbook(path: Path) -> pd.DataFrame:
@@ -86,11 +80,10 @@ def read_rpw_workbook(path: Path) -> pd.DataFrame:
         )
     logger.info("reading sheet %r (this is the slow step, ~30s for the full panel)", target)
     raw = pd.read_excel(xl, sheet_name=target, dtype=object)
-    raw = raw.dropna(axis=1, how="all")  # drop the trailing all-empty cols
+    raw = raw.dropna(axis=1, how="all")
     raw = raw.dropna(axis=0, how="all")
     logger.info("raw frame: %d rows x %d cols", len(raw), raw.shape[1])
     return raw
-
 
 def read_country_info(path: Path) -> pd.DataFrame:
     """RPW ships a Countries sheet with clean region/income — use it to fix
@@ -122,12 +115,10 @@ def read_country_info(path: Path) -> pd.DataFrame:
     return df
 
 
-# ---------------------------------------------------------------------------
-# Cleaning helpers
-# ---------------------------------------------------------------------------
+
+
 
 _NUMERIC_NULLS = {"", "..", "...", "n/a", "na", "nan", "none", "-"}
-
 
 def to_number(series: pd.Series) -> pd.Series:
     """Coerce a column to float, treating common RPW null sentinels as NaN."""
@@ -138,14 +129,13 @@ def to_number(series: pd.Series) -> pd.Series:
     )
     return pd.to_numeric(cleaned, errors="coerce")
 
-
 def parse_period(period: pd.Series) -> tuple[pd.Series, pd.Series, pd.Series]:
     """Parse RPW period strings like '2024_3Q' into (year, quarter, period_dt)."""
     s = period.astype(str).str.strip()
     parts = s.str.extract(r"(?P<year>\d{4})\D+(?P<q>\d)", expand=True)
     year = pd.to_numeric(parts["year"], errors="coerce").astype("Int64")
     quarter = pd.to_numeric(parts["q"], errors="coerce").astype("Int64")
-    # Convert (year, quarter) -> first day of quarter for a sortable timestamp.
+
     month = ((quarter - 1) * 3 + 1).astype("Int64")
     period_dt = pd.to_datetime(
         {
@@ -158,11 +148,10 @@ def parse_period(period: pd.Series) -> tuple[pd.Series, pd.Series, pd.Series]:
     period_dt = period_dt.where(year.notna() & quarter.notna())
     return year, quarter, period_dt
 
-
 def normalise_firm_type_series(s: pd.Series) -> pd.Series:
     norm = s.astype(str).map(config.normalise_firm_type)
     mapped = norm.map(config.FIRM_TYPE_ALIASES)
-    # Fallback: try substring on the normalized string for compound types.
+
     def _fallback(raw: str) -> str:
         if "moneytransferoperator" in raw:
             return "MTO"
@@ -179,17 +168,15 @@ def normalise_firm_type_series(s: pd.Series) -> pd.Series:
     fallback = norm.map(_fallback)
     return mapped.fillna(fallback)
 
-
 def map_speed_to_days(s: pd.Series) -> pd.Series:
     keys = s.astype(str).map(config.normalise_speed)
     return keys.map(config.SPEED_TO_DAYS).astype("float64")
 
 
-# ---------------------------------------------------------------------------
-# Melt cc1/cc2 -> long form
-# ---------------------------------------------------------------------------
 
-# Static mapping: canonical -> per-bucket alias root (cc1 / cc2). Used by melt.
+
+
+
 _PER_BUCKET_ROOTS: tuple[tuple[str, str], ...] = (
     ("lcu_amount", "lcu_amount"),
     ("lcu_code", "lcu_code"),
@@ -199,7 +186,6 @@ _PER_BUCKET_ROOTS: tuple[tuple[str, str], ...] = (
     ("total_cost_pct", "total_cost_pct"),
     ("denomination", "denomination"),
 )
-
 
 def melt_amount_buckets(df: pd.DataFrame) -> pd.DataFrame:
     """Stack the cc1 (USD 200) and cc2 (USD 500) columns into long form."""
@@ -221,9 +207,7 @@ def melt_amount_buckets(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Main pipeline
-# ---------------------------------------------------------------------------
+
 
 
 def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
@@ -241,25 +225,25 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
             "Add aliases to CANDIDATE_COLUMNS in pipeline/config.py."
         )
 
-    # Rename to canonical names; keep only resolved columns.
+
     df = raw[list(resolved.values())].copy()
     df.columns = list(resolved.keys())
 
-    # Period parsing
+
     year, quarter, period_dt = parse_period(df["period"])
     df["year"] = year
     df["quarter"] = quarter
     df["period_dt"] = period_dt
 
-    # Country + firm normalisation
+
     df["source_code"] = df["source_code"].astype(str).str.upper().str.strip()
     df["destination_code"] = df["destination_code"].astype(str).str.upper().str.strip()
     df["corridor_id"] = df["source_code"] + "-" + df["destination_code"]
     df["firm"] = df["firm"].astype(str).str.strip()
     df["firm_type"] = normalise_firm_type_series(df["firm_type_raw"])
 
-    # Replace RPW ".." null sentinels in region/income with proper values
-    # from the workbook's Countries sheet (so USA gets "North America", etc.).
+
+
     src_info = countries.rename(
         columns={"name": "source_name_clean", "region": "source_region_clean", "income": "source_income_clean"}
     )
@@ -273,15 +257,15 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
         for field in ("name", "region", "income"):
             raw_col, clean_col = f"{stem}_{field}", f"{stem}_{field}_clean"
             if raw_col in df.columns and clean_col in df.columns:
-                # Prefer the clean lookup when present; fall back to raw with
-                # ".." stripped.
+
+
                 fallback = df[raw_col].astype(str).str.strip().replace(
                     {"..": None, "": None, "nan": None, "None": None}
                 )
                 df[raw_col] = df[clean_col].fillna(fallback)
                 df = df.drop(columns=[clean_col])
 
-    # Backfill region for high-income countries the WB doesn't classify.
+
     code_col = {"source": "source_code", "destination": "destination_code"}
     for stem in ("source", "destination"):
         col = f"{stem}_region"
@@ -289,13 +273,13 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
             backfill = df[code_col[stem]].map(config.REGION_BACKFILL)
             df[col] = df[col].fillna(backfill)
 
-    # Speed -> days
+
     df["days_to_arrive"] = map_speed_to_days(df["transfer_speed_raw"])
     df["speed_penalty_pct"] = config.TCI_KAPPA_PCT_PER_DAY * np.maximum(
         0.0, df["days_to_arrive"] - 1.0
     )
 
-    # Numeric coercion for per-bucket fields
+
     for col in (
         "lcu_amount_cc1",
         "lcu_fee_cc1",
@@ -314,14 +298,14 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
         if col in df.columns:
             df[col] = to_number(df[col])
 
-    # Melt to long form
+
     long = melt_amount_buckets(df)
 
-    # Send-amount canonicalisation: USD 200 / USD 500 buckets.
+
     long = long.rename(columns={"denomination": "send_amount_usd"})
     long["send_amount_usd"] = pd.to_numeric(long["send_amount_usd"], errors="coerce")
 
-    # Drop rows missing the TCI inputs
+
     pre_drop = len(long)
     long = long[
         long["fx_margin_pct"].notna()
@@ -333,13 +317,13 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     ].copy()
     logger.info("dropped %d rows missing required TCI inputs", pre_drop - len(long))
 
-    # Derive fee_pct = total_cost_pct - fx_margin_pct (methodology §5.1).
+
     long["fee_pct"] = (long["total_cost_pct"] - long["fx_margin_pct"]).clip(lower=0.0)
 
-    # Final TCI assembled from its three components.
+
     long["tci_pct"] = long["fee_pct"] + long["fx_margin_pct"] + long["speed_penalty_pct"]
 
-    # Bucketise send-amount to the headline grid (USD 200 / 500).
+
     head, sec = config.HEADLINE_SEND_AMOUNT_USD, config.SECONDARY_SEND_AMOUNT_USD
     bucket = pd.Series(np.nan, index=long.index, dtype="float64")
     bucket = bucket.mask(
@@ -356,7 +340,7 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     long = long[keep].copy()
     long["send_amount_bucket_usd"] = long["send_amount_bucket_usd"].astype("int64")
 
-    # Sanity clip: outlandish total_cost_pct (>100%) is a data error in this panel.
+
     pre_clip = len(long)
     long = long[
         (long["fee_pct"].between(0, 100, inclusive="both"))
@@ -365,7 +349,7 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     ].copy()
     logger.info("clipped %d implausible-cost rows", pre_clip - len(long))
 
-    # Drop helper columns we don't need downstream.
+
     drop_cols = [
         "firm_type_raw",
         "transfer_speed_raw",
@@ -376,13 +360,13 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     ]
     long = long.drop(columns=[c for c in drop_cols if c in long.columns])
 
-    # Parquet-friendly dtypes
+
     long["year"] = long["year"].astype("Int64")
     long["quarter"] = long["quarter"].astype("Int64")
     if "date" in long.columns:
         long["date"] = pd.to_datetime(long["date"], errors="coerce")
-    # Coerce string-ish object columns to clean strings so parquet doesn't
-    # trip on mixed datetime/str cells in the source workbook.
+
+
     for col in ("transparent", "lcu_code", "payment_instrument", "access_point",
                 "pickup_method", "pickup_location", "source_region", "source_income",
                 "destination_region", "destination_income", "source_name",
@@ -394,14 +378,11 @@ def preprocess(raw_path: Path = config.RAW_RPW_PATH) -> pd.DataFrame:
     return long
 
 
-# ---------------------------------------------------------------------------
-# Summary print
-# ---------------------------------------------------------------------------
+
 
 
 def _format_money(x: float | int) -> str:
     return f"{x:>14,}"
-
 
 def print_summary(df: pd.DataFrame) -> None:
     head = config.HEADLINE_SEND_AMOUNT_USD
@@ -439,8 +420,8 @@ def print_summary(df: pd.DataFrame) -> None:
         print(f"    {ft:<14s} {cnt:>10,}")
     print()
 
-    # Top 10 most expensive corridors by raw total_cost_pct, USD 200 bucket,
-    # latest quarter only (so we're comparing like with like).
+
+
     if not head_df.empty:
         latest = head_df["period_dt"].max()
         recent = head_df[head_df["period_dt"] == latest]
@@ -481,7 +462,6 @@ def print_summary(df: pd.DataFrame) -> None:
     print(f"  Wrote {config.PROCESSED_RPW_PATH}")
     print("=" * 78)
 
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Clean and normalize the RPW xlsx.")
     parser.add_argument(
@@ -510,7 +490,6 @@ def main(argv: list[str] | None = None) -> int:
     logger.info("wrote %s (%.1f MB, %d rows)", args.out, args.out.stat().st_size / 1_048_576, len(df))
     print_summary(df)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

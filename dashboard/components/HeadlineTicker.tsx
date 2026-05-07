@@ -6,21 +6,21 @@ import { useEffect, useState } from "react";
 import { fmtUsdCompact } from "@/lib/format";
 
 export interface TickerItem {
-  /** Region of the source country, uppercased (e.g. "SUB-SAHARAN AFRICA") */
+
   region: string;
-  /** Source country name, uppercased */
+
   source: string;
-  /** Destination country name, uppercased */
+
   destination: string;
-  /** True cost percent for the corridor */
+
   tci_pct: number;
-  /** Annual savings vs stablecoin counterfactual in USD */
+
   savings_usd: number;
 }
 
 interface HeadlineTickerProps {
   items: TickerItem[];
-  /** Cycle interval ms. Default 5000. */
+
   intervalMs?: number;
 }
 

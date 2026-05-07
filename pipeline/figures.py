@@ -32,28 +32,26 @@ from pipeline import aggregate, config, regression, stablecoin, tci
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Theme
-# ---------------------------------------------------------------------------
 
-# 300 DPI export — Plotly+Kaleido takes pixels, not inches. Render at 2x and
-# scale via the `scale` arg so axis fonts stay crisp.
+
+
+
+
 PNG_WIDTH = 1600
 PNG_HEIGHT = 1000
-PNG_SCALE = 2  # ⇒ effective 3200 × 2000 ≈ 300 DPI for ~10in wide print
+PNG_SCALE = 2
 
 FONT_SERIF = "Source Serif 4, Newsreader, Georgia, serif"
 FONT_SANS = "Inter, Helvetica Neue, Arial, sans-serif"
 FONT_MONO = "JetBrains Mono, IBM Plex Mono, ui-monospace, monospace"
 
-# Component palette: fee = amber, fx = darker amber, speed = neutral grey.
-COLOR_FEE = config.COLOR_ACCENT_POSITIVE  # #D97706
-COLOR_FX = "#9C5409"  # darker shade of amber
-COLOR_SPEED = "#3F3F3F"  # near-neutral grey
-COLOR_NEG = config.COLOR_ACCENT_NEGATIVE  # #B91C1C
-COLOR_AXIS = config.COLOR_TEXT_MUTED  # #A8A29E
-COLOR_GRID = "#1F1F1F"
 
+COLOR_FEE = config.COLOR_ACCENT_POSITIVE
+COLOR_FX = "#9C5409"
+COLOR_SPEED = "#3F3F3F"
+COLOR_NEG = config.COLOR_ACCENT_NEGATIVE
+COLOR_AXIS = config.COLOR_TEXT_MUTED
+COLOR_GRID = "#1F1F1F"
 
 def _layout(
     title: str,
@@ -112,7 +110,6 @@ def _layout(
         showlegend=False,
     )
 
-
 def _save(fig: go.Figure, out_path: Path) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.write_image(
@@ -124,9 +121,7 @@ def _save(fig: go.Figure, out_path: Path) -> None:
     logger.info("wrote %s (%.0f KB)", out_path, out_path.stat().st_size / 1024)
 
 
-# ---------------------------------------------------------------------------
-# Fig 1: Top 20 corridors — stacked TCI bar
-# ---------------------------------------------------------------------------
+
 
 
 def fig_top20_corridors(snapshot: pd.DataFrame, out: Path) -> None:
@@ -162,7 +157,7 @@ def fig_top20_corridors(snapshot: pd.DataFrame, out: Path) -> None:
         hovertemplate="<b>%{y}</b><br>Speed penalty: %{x:.2f}%<extra></extra>",
     ))
 
-    # TCI total annotations to the right of each bar
+
     totals = fee + fx + spd
     annotations = [
         dict(
@@ -199,9 +194,7 @@ def fig_top20_corridors(snapshot: pd.DataFrame, out: Path) -> None:
     _save(fig, out)
 
 
-# ---------------------------------------------------------------------------
-# Fig 2: World choropleth — fee burden by sender
-# ---------------------------------------------------------------------------
+
 
 
 def fig_world_map(senders: list[dict], out: Path) -> None:
@@ -219,7 +212,7 @@ def fig_world_map(senders: list[dict], out: Path) -> None:
     df = pd.DataFrame(rows)
     df = df[df["burden_b"] > 0]
 
-    # Custom amber colorscale on a dark base.
+
     scale = [
         [0.0, "#1F1F1F"],
         [0.05, "#3D2A12"],
@@ -285,15 +278,13 @@ def fig_world_map(senders: list[dict], out: Path) -> None:
     _save(fig, out)
 
 
-# ---------------------------------------------------------------------------
-# Fig 3: Operator-class regression forest plot
-# ---------------------------------------------------------------------------
+
 
 
 def fig_operator_forest(reg_models: dict[int, regression.RegressionResult], out: Path) -> None:
     head = int(config.HEADLINE_SEND_AMOUNT_USD)
     res = reg_models[head]
-    coefs = list(reversed(res.coefficients))  # plot top-to-bottom
+    coefs = list(reversed(res.coefficients))
 
     labels = [c.firm_type for c in coefs]
     est = [c.estimate_pct for c in coefs]
@@ -360,16 +351,14 @@ def fig_operator_forest(reg_models: dict[int, regression.RegressionResult], out:
         height=600,
     )
     rng_lo = min(lo + [0]) - 1.5
-    rng_hi = max(hi + [0]) + 6.0  # leave room for annotation on the right
+    rng_hi = max(hi + [0]) + 6.0
     layout["xaxis"]["range"] = [rng_lo, rng_hi]
     layout["annotations"] = annotations
     fig.update_layout(**layout)
     _save(fig, out)
 
 
-# ---------------------------------------------------------------------------
-# Fig 4: Stablecoin savings scatter
-# ---------------------------------------------------------------------------
+
 
 
 def fig_savings_scatter(savings: pd.DataFrame, out: Path) -> None:
@@ -386,12 +375,12 @@ def fig_savings_scatter(savings: pd.DataFrame, out: Path) -> None:
 
     point_size = np.clip(sub["savings_m"].fillna(0) / 8.0, 4, 40)
 
-    # Highlight top 10 with labels
+
     top10 = sub.head(10)
 
     fig = go.Figure()
 
-    # Background scatter — every corridor as an unlabeled dot.
+
     fig.add_trace(go.Scatter(
         x=sub["volume_b"],
         y=sub["savings_pct"],
@@ -414,7 +403,7 @@ def fig_savings_scatter(savings: pd.DataFrame, out: Path) -> None:
         ]),
     ))
 
-    # Foreground trace: top-10 by absolute savings, marker + label above the dot.
+
     top10_size = np.clip(top10["savings_m"].fillna(0) / 8.0, 8, 50)
     fig.add_trace(go.Scatter(
         x=top10["volume_b"],
@@ -451,14 +440,12 @@ def fig_savings_scatter(savings: pd.DataFrame, out: Path) -> None:
     _save(fig, out)
 
 
-# ---------------------------------------------------------------------------
-# Fig 5: Diaspora burden — top 10 senders
-# ---------------------------------------------------------------------------
+
 
 
 def fig_diaspora_burden(senders: list[dict], out: Path) -> None:
     df = pd.DataFrame(senders).sort_values("fee_burden_usd_annual", ascending=False).head(10)
-    df = df.iloc[::-1]  # plotly horizontal bars draw bottom-to-top
+    df = df.iloc[::-1]
     burden_b = df["fee_burden_usd_annual"].astype(float) / 1e9
     savings_b = df["sc_savings_usd_annual"].astype(float) / 1e9
     labels = df["source_name"].astype(str).tolist()
@@ -487,8 +474,8 @@ def fig_diaspora_burden(senders: list[dict], out: Path) -> None:
         ),
     ))
 
-    # Annotations: use a Unicode "small dollar" + non-breaking spaces to
-    # avoid Plotly interpreting plain `$...$` as inline TeX math.
+
+
     annotations = []
     for lbl, b, s in zip(labels, burden_b, savings_b):
         annotations.append(dict(
@@ -524,9 +511,7 @@ def fig_diaspora_burden(senders: list[dict], out: Path) -> None:
     _save(fig, out)
 
 
-# ---------------------------------------------------------------------------
-# Driver
-# ---------------------------------------------------------------------------
+
 
 
 def render_all(out_dir: Path = config.FIGURES_DIR) -> None:
@@ -534,19 +519,19 @@ def render_all(out_dir: Path = config.FIGURES_DIR) -> None:
 
     df = pd.read_parquet(config.PROCESSED_RPW_PATH)
 
-    # Phase 2 inputs
+
     panel = tci.corridor_period_tci(df)
     snap = tci.latest_corridor_snapshot(panel)
 
-    # Phase 3 inputs
+
     savings, _ = stablecoin.compute()
 
-    # Phase 4 inputs
+
     burden_payload = aggregate.build_payload(savings)
     senders = burden_payload["senders"]
     reg_models = regression.fit_all()
 
-    # Render
+
     fig_top20_corridors(snap, out_dir / "fig01_top20_corridors.png")
     fig_world_map(senders, out_dir / "fig02_world_map.png")
     fig_operator_forest(reg_models, out_dir / "fig03_operator_forest.png")
@@ -556,10 +541,8 @@ def render_all(out_dir: Path = config.FIGURES_DIR) -> None:
     make_tci_distribution_figure(snap, out_dir / "tci_distribution.png")
 
 
-# ---------------------------------------------------------------------------
-# §3 dataset distribution figure — corridor-level TCI histogram with
-# vertical hairlines at the SDG 10.c 3% target and the panel global mean.
-# ---------------------------------------------------------------------------
+
+
 
 
 def make_tci_distribution_figure(snapshot: pd.DataFrame, out: Path,
@@ -575,8 +558,8 @@ def make_tci_distribution_figure(snapshot: pd.DataFrame, out: Path,
     sub = snapshot[snapshot["send_amount_bucket_usd"] == send_amount_usd].copy()
     tcis = sub["tci_pct_mean"].astype(float).dropna()
 
-    # Cap the right tail visually at 30% — ~25 outliers above clutter the
-    # histogram. We mark the cap with an annotation so the reader knows.
+
+
     cap = 30.0
     over = int((tcis > cap).sum())
     binned = tcis.clip(upper=cap)
@@ -589,7 +572,7 @@ def make_tci_distribution_figure(snapshot: pd.DataFrame, out: Path,
         hovertemplate="TCI bucket: %{x:.1f}%<br>n corridors: %{y}<extra></extra>",
     ))
 
-    # Vertical hairlines
+
     fig.add_shape(
         type="line", x0=sdg_target_pct, x1=sdg_target_pct, y0=0, y1=1,
         xref="x", yref="paper",
@@ -641,9 +624,7 @@ def make_tci_distribution_figure(snapshot: pd.DataFrame, out: Path,
     _save(fig, out)
 
 
-# ---------------------------------------------------------------------------
-# Fig 6: Block diagram — data flow architecture
-# ---------------------------------------------------------------------------
+
 
 
 def fig_block_diagram(out: Path) -> None:
@@ -655,7 +636,7 @@ def fig_block_diagram(out: Path) -> None:
     """
     fig = go.Figure()
 
-    # canvas
+
     W, H = 1600, 900
     fig.update_layout(
         width=W, height=H,
@@ -702,12 +683,12 @@ def fig_block_diagram(out: Path) -> None:
             arrowcolor=color or COLOR_AXIS, text="",
         )
 
-    # Row 1 — sources
+
     box(8, 75, 26, 14, "World Bank RPW", "rpw_dataset_2011_2025_q1.xlsx", fill="#1a1206")
     box(38, 75, 26, 14, "KNOMAD BRE",   "Data360 API · 2021 bilateral",  fill="#1a1206")
     box(68, 75, 24, 14, "WB Country lookup", "M49 + ISO3 + region",      fill="#1a1206")
 
-    # Row 2 — pipeline stages
+
     box(4,  50, 18, 13, "ingest",      "pipeline/ingest.py")
     box(24, 50, 18, 13, "preprocess",  "schema sniff · cc1/cc2 melt", fill="#211408")
     box(44, 50, 18, 13, "TCI",         "fee + fxMargin + κ·max(0,d-1)", fill="#211408",
@@ -720,36 +701,36 @@ def fig_block_diagram(out: Path) -> None:
     box(50, 32, 22, 11, "export",      "round · null-safe JSON",     fill="#161616")
     box(80, 32, 14, 11, "figures",     "Plotly · 300 DPI",            fill="#161616")
 
-    # Row 3 — outputs
+
     box(4, 12, 22, 13, "rpw_clean.parquet", "data/processed/", fill="#0d0d0d", font_size=14)
     box(28, 12, 22, 13, "corridors.json",   "5.7 MB · 368 corridors", fill="#0d0d0d", font_size=14)
     box(52, 12, 22, 13, "diaspora_burden.json", "108 KB · senders/receivers", fill="#0d0d0d", font_size=14)
     box(76, 12, 22, 13, "operator_regression.json", "5.9 KB · models", fill="#0d0d0d", font_size=14)
 
-    # Arrows — sources to stages
-    arrow(21, 75, 13, 63)        # RPW → ingest
-    arrow(21, 75, 33, 63)        # RPW → preprocess
-    arrow(51, 75, 53, 63)        # KNOMAD → TCI/stablecoin upstream
-    arrow(51, 75, 73, 63)
-    arrow(80, 75, 33, 63)        # countries → preprocess
 
-    # Arrows between stages (left to right)
+    arrow(21, 75, 13, 63)
+    arrow(21, 75, 33, 63)
+    arrow(51, 75, 53, 63)
+    arrow(51, 75, 73, 63)
+    arrow(80, 75, 33, 63)
+
+
     for x_start, x_end in [(22, 24), (42, 44), (62, 64), (82, 84)]:
         arrow(x_start, 56.5, x_end, 56.5)
 
-    # Down-arrows to row 3
-    arrow(33, 50, 33, 25)        # preprocess → parquet
-    arrow(53, 32, 39, 25)        # aggregate → corridors
-    arrow(61, 32, 63, 25)        # export → diaspora
-    arrow(91, 32, 87, 25)        # figures → reg + report figures
 
-    # Down arrow from row 2 to row 2.5 (aggregations stripe)
-    arrow(53, 50, 31, 43)        # TCI → aggregate
-    arrow(73, 50, 53, 43)        # stablecoin → aggregate
-    arrow(73, 50, 61, 43)        # stablecoin → export
-    arrow(91, 50, 87, 43)        # regression → figures
+    arrow(33, 50, 33, 25)
+    arrow(53, 32, 39, 25)
+    arrow(61, 32, 63, 25)
+    arrow(91, 32, 87, 25)
 
-    # Bottom: arrow from outputs into a dashboard rectangle
+
+    arrow(53, 50, 31, 43)
+    arrow(73, 50, 53, 43)
+    arrow(73, 50, 61, 43)
+    arrow(91, 50, 87, 43)
+
+
     box(28, 0, 70, 7, "dashboard/public/data/  ⇒  Next.js · Tailwind v4 · Fraunces · Geist", None,
         fill="#0a0a0a", border=COLOR_FEE, label_color=COLOR_FEE, font_size=14)
     arrow(39, 12, 39, 7)
@@ -758,7 +739,6 @@ def fig_block_diagram(out: Path) -> None:
 
     fig.update_layout(showlegend=False)
     _save(fig, out)
-
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Render report figures.")
@@ -770,7 +750,6 @@ def main(argv: list[str] | None = None) -> int:
     )
     render_all()
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

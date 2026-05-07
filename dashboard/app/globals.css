@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  /* ------------------------------------------------------------------ */
-  /*  Colour                                                            */
-  /* ------------------------------------------------------------------ */
+
+
+
   --color-bg: #0a0a0a;
   --color-surface: #111111;
   --color-surface-2: #161616;
@@ -16,28 +16,24 @@
   --color-accent-2: #65a30d;
   --color-negative: #b91c1c;
 
-  /* ------------------------------------------------------------------ */
-  /*  Type                                                              */
-  /* ------------------------------------------------------------------ */
+
+
+
   --font-display: var(--font-fraunces);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 
-  /* Type scale: restrained, modular. Pick from this list, never between. */
-  --text-overline: 0.6875rem;     /* 11 px */
-  --text-label: 0.8125rem;        /* 13 px */
-  --text-body: 0.9375rem;         /* 15 px */
-  --text-body-lg: 1.125rem;       /* 18 px */
-  --text-subhead: 1.5rem;         /* 24 px */
-  --text-section: 2rem;           /* 32 px */
-  --text-display: 3.5rem;         /* 56 px */
-  --text-hero: 6rem;              /* 96 px */
-  --text-hero-lg: 8rem;           /* 128 px */
-}
 
-/* -------------------------------------------------------------------- */
-/*  Base                                                                */
-/* -------------------------------------------------------------------- */
+  --text-overline: 0.6875rem;
+  --text-label: 0.8125rem;
+  --text-body: 0.9375rem;
+  --text-body-lg: 1.125rem;
+  --text-subhead: 1.5rem;
+  --text-section: 2rem;
+  --text-display: 3.5rem;
+  --text-hero: 6rem;
+  --text-hero-lg: 8rem;
+}
 
 html,
 body {
@@ -56,16 +52,12 @@ body {
   line-height: 1.55;
 }
 
-/* Editorial display font: Fraunces, optical sizing high for hero, slight
-   negative tracking for headlines per the spec. */
 .font-display {
   font-family: var(--font-fraunces), ui-serif, Georgia, serif;
   font-feature-settings: "ss01";
   font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 0;
 }
 
-/* Mono is ALWAYS tabular. That's what we use it for: table columns and
-   numeric-aligned blocks. */
 .font-mono,
 [class*="font-mono"] {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
@@ -74,10 +66,6 @@ body {
   letter-spacing: -0.005em;
 }
 
-/* Inline numerics in prose: Geist Sans with tabular figures + ss01 +
-   slashed zero. Keeps periods/percent signs tight to the digit while still
-   aligning columns when used in tables. Mono is reserved for the actual
-   tabular blocks (table cells, KPI values, overlines, chart axes). */
 .num {
   font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "tnum", "ss01", "zero";
@@ -90,10 +78,6 @@ body {
   font-feature-settings: "tnum", "ss01", "zero";
 }
 
-/* -------------------------------------------------------------------- */
-/*  Selection / focus / scrollbar                                       */
-/* -------------------------------------------------------------------- */
-
 ::selection {
   background: var(--color-accent);
   color: var(--color-bg);
@@ -105,7 +89,6 @@ body {
   border-radius: 1px;
 }
 
-/* Subtle scrollbars on dark, never the default chrome bars. */
 * {
   scrollbar-width: thin;
   scrollbar-color: #2a2a2a transparent;
@@ -125,30 +108,18 @@ body {
   background: #3a3a3a;
 }
 
-/* -------------------------------------------------------------------- */
-/*  Texture                                                             */
-/* -------------------------------------------------------------------- */
-
-/* Grain: SVG-inlined fractalNoise at low opacity. Sits above the bg layer
-   but below the content layer. Pointer-events-none so it never intercepts. */
 .grain {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.93 0 0 0 0 0.93 0 0 0 0 0.93 0 0 0 0.42 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-repeat: repeat;
   opacity: 0.04;
 }
 
-/* -------------------------------------------------------------------- */
-/*  Editorial primitives                                                */
-/* -------------------------------------------------------------------- */
-
-/* Hairline rule, 1px var(--border), used like a print-magazine rule. */
 .rule {
   height: 1px;
   background: var(--color-border);
   width: 100%;
 }
 
-/* Overline: small caps tracking-widest mono, used for section label */
 .overline {
   font-family: var(--font-geist-mono), ui-monospace, monospace;
   font-size: var(--text-overline);
@@ -158,8 +129,6 @@ body {
   font-feature-settings: "ss01";
 }
 
-/* Hero gradient: vertical fade from #0A0A0A to a warm shadow. Used ONCE,
-   under the landing-page hero number. Nothing else gets gradients. */
 .hero-shadow {
   background: linear-gradient(
     180deg,
@@ -168,7 +137,6 @@ body {
   );
 }
 
-/* KaTeX inheriting our type, so math expressions read as part of the page. */
 .katex {
   font-family: var(--font-geist-mono), ui-monospace, monospace !important;
   font-size: 0.95em;
@@ -178,7 +146,6 @@ body {
   font-style: normal;
 }
 
-/* Skeleton loading shimmer: slow 3s, no spinners anywhere. */
 @keyframes shimmer {
   0% {
     opacity: 0.4;
@@ -196,22 +163,18 @@ body {
   animation: shimmer 3s ease-in-out infinite;
 }
 
-/* Custom map cursor: small + reticle in text-2 colour. Used only on the
-   world map zone via a `cursor-map` utility class below. */
 .cursor-map {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><line x1='8' y1='2' x2='8' y2='14' stroke='%23a1a1a1' stroke-width='1'/><line x1='2' y1='8' x2='14' y2='8' stroke='%23a1a1a1' stroke-width='1'/></svg>")
       8 8,
     crosshair;
 }
 
-/* When a country with data is hovered, the cursor accent flips to amber. */
 .cursor-map-active {
   cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><line x1='8' y1='2' x2='8' y2='14' stroke='%23d97706' stroke-width='1.4'/><line x1='2' y1='8' x2='14' y2='8' stroke='%23d97706' stroke-width='1.4'/></svg>")
       8 8,
     crosshair;
 }
 
-/* Text balance / pretty for headlines and body copy where supported. */
 .balance {
   text-wrap: balance;
 }

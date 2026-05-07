@@ -44,7 +44,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
   if (!corridor) notFound();
   const bucket = corridor.amounts[String(amount)];
   if (!bucket) {
-    // fall back to USD 200 if 500 missing
+
     redirect(`/corridor/${id}`);
   }
 
@@ -52,7 +52,7 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
   const sc = bucket.stablecoin;
   const cheapest = bucket.providers[0];
 
-  // Picker data: sources alphabetically; per-source destinations alphabetically.
+
   const sendersOptions = uniqOptions(
     corridors.map((c) => ({ code: c.source_code, name: c.source_name ?? c.source_code })),
   );
@@ -84,9 +84,9 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
         amount={amount as 200 | 500}
       />
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Headline sentence                                                  */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <section className="mx-auto max-w-[1280px] px-6 pt-20 pb-16 grid grid-cols-12 gap-6">
         <div className="col-span-12 lg:col-span-2">
           <div className="overline">Corridor</div>
@@ -132,9 +132,9 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
 
       <hr className="rule mx-auto max-w-[1280px]" />
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Comparison bar                                                     */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <Section
         overline="§1 · TCI breakdown"
         title="What the cost is made of."
@@ -173,9 +173,9 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
         ) : null}
       </Section>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Provider list                                                      */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <Section
         overline="§2 · Providers"
         title={
@@ -192,9 +192,9 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
         </div>
       </Section>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* History                                                            */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       {bucket.history && bucket.history.length > 1 ? (
         <Section
           overline="§3 · History"
@@ -209,9 +209,9 @@ export default async function CorridorPage({ params, searchParams }: RouteProps)
         </Section>
       ) : null}
 
-      {/* ----------------------------------------------------------------- */}
-      {/* Annual diaspora callout                                            */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       {sc?.volume_usd_annual ? (
         <section className="mx-auto max-w-[1280px] px-6 mt-32 grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-3">

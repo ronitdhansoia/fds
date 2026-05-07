@@ -6,7 +6,6 @@ interface MathProps {
   display?: boolean;
 }
 
-/** Render a KaTeX expression. Always strict, throws on bad TeX. */
 export function Math({ expr, display = false }: MathProps) {
   const html = katex.renderToString(expr, {
     displayMode: display,

@@ -5,7 +5,7 @@ import { fmtPct, fmtUsdCompact } from "@/lib/format";
 interface RankingTableProps {
   rows: RankingCorridor[];
   metric: "tci" | "savings_pct" | "savings_usd" | "burden_usd";
-  /** column header for the right-hand value column */
+
   rightHeader: string;
   rightFormat: (r: RankingCorridor) => string;
   rightTone?: "amber" | "moss" | "neutral";
@@ -67,7 +67,7 @@ export function RankingTable({
                 {rightFormat(r)}
               </span>
             </div>
-            {/* Sparkline-style bar at the bottom edge */}
+            {}
             <div className="absolute -bottom-px left-0 h-px bg-surface w-full">
               <div
                 className={`h-full ${

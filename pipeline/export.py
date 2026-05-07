@@ -27,9 +27,7 @@ from pipeline import aggregate, config, regression, stablecoin, tci
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# JSON-safety helpers
-# ---------------------------------------------------------------------------
+
 
 
 def _round(x: float, n: int = 4) -> float | None:
@@ -42,14 +40,12 @@ def _round(x: float, n: int = 4) -> float | None:
         x = float(x)
     return round(float(x), n)
 
-
 def _maybe_int(x: Any) -> int | None:
     if x is None:
         return None
     if isinstance(x, float) and np.isnan(x):
         return None
     return int(x)
-
 
 def _maybe_str(x: Any) -> str | None:
     if x is None:
@@ -58,7 +54,6 @@ def _maybe_str(x: Any) -> str | None:
         return None
     return str(x)
 
-
 def _period_label(year: Any, quarter: Any) -> str | None:
     y, q = _maybe_int(year), _maybe_int(quarter)
     if y is None or q is None:
@@ -66,9 +61,7 @@ def _period_label(year: Any, quarter: Any) -> str | None:
     return f"{y}_{q}Q"
 
 
-# ---------------------------------------------------------------------------
-# Per-amount payload
-# ---------------------------------------------------------------------------
+
 
 
 def _component_dict(row: pd.Series, suffix: str = "_mean") -> dict[str, float | None]:
@@ -78,7 +71,6 @@ def _component_dict(row: pd.Series, suffix: str = "_mean") -> dict[str, float | 
         "speed_penalty_pct": _round(row.get(f"speed_penalty_pct{suffix}")),
         "tci_pct": _round(row.get(f"tci_pct{suffix}")),
     }
-
 
 def _current_payload(row: pd.Series) -> dict[str, Any]:
     return {
@@ -93,7 +85,6 @@ def _current_payload(row: pd.Series) -> dict[str, Any]:
         "n_observations": _maybe_int(row.get("n_observations")),
     }
 
-
 def _rolling_payload(row: pd.Series) -> dict[str, float | None]:
     return {
         "fee_pct": _round(row.get("fee_pct_mean_r4")),
@@ -101,7 +92,6 @@ def _rolling_payload(row: pd.Series) -> dict[str, float | None]:
         "speed_penalty_pct": _round(row.get("speed_penalty_pct_mean_r4")),
         "tci_pct": _round(row.get("tci_pct_mean_r4")),
     }
-
 
 def _history_payload(history: pd.DataFrame) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
@@ -117,7 +107,6 @@ def _history_payload(history: pd.DataFrame) -> list[dict[str, Any]]:
             }
         )
     return out
-
 
 def _provider_payload(providers: pd.DataFrame) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
@@ -137,9 +126,7 @@ def _provider_payload(providers: pd.DataFrame) -> list[dict[str, Any]]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Corridor-level builder
-# ---------------------------------------------------------------------------
+
 
 
 def _corridor_identity(row: pd.Series) -> dict[str, Any]:
@@ -152,7 +139,6 @@ def _corridor_identity(row: pd.Series) -> dict[str, Any]:
         "destination_name": _maybe_str(row.get("destination_name")),
         "destination_region": _maybe_str(row.get("destination_region")),
     }
-
 
 def _stablecoin_payload(row: pd.Series) -> dict[str, Any]:
     return {
@@ -169,7 +155,6 @@ def _stablecoin_payload(row: pd.Series) -> dict[str, Any]:
         "savings_usd_annual_rolling_4q": _round(row.get("savings_usd_annual_r4"), 0),
     }
 
-
 def build_corridor_payloads(
     panel: pd.DataFrame,
     providers: pd.DataFrame,
@@ -182,7 +167,7 @@ def build_corridor_payloads(
         ["corridor_id", "send_amount_bucket_usd"], dropna=False
     )["period_dt"].idxmax()
     snap_full = rolled.loc[snapshot_idx].reset_index(drop=True)
-    # quick lookup via dict: (corridor_id, amount) -> row Series
+
     snap_by_key: dict[tuple[str, int], pd.Series] = {
         (str(r["corridor_id"]), int(r["send_amount_bucket_usd"])): r
         for _, r in snap_full.iterrows()
@@ -193,7 +178,7 @@ def build_corridor_payloads(
         for _, r in savings.iterrows():
             sc_by_key[(str(r["corridor_id"]), int(r["send_amount_usd"]))] = r
 
-    # group full quarterly history per (corridor × amount)
+
     history_groups = rolled.groupby(["corridor_id", "send_amount_bucket_usd"], dropna=False)
     provider_groups = providers.groupby(["corridor_id", "send_amount_bucket_usd"], dropna=False)
 
@@ -243,9 +228,7 @@ def build_corridor_payloads(
     return out
 
 
-# ---------------------------------------------------------------------------
-# Meta + envelope
-# ---------------------------------------------------------------------------
+
 
 
 def build_meta(
@@ -334,7 +317,6 @@ def build_meta(
         meta["global_savings"] = savings_summary
     return meta
 
-
 def write_corridors_json(
     corridors: list[dict[str, Any]],
     meta: dict[str, Any],
@@ -347,7 +329,6 @@ def write_corridors_json(
     size_mb = out_path.stat().st_size / 1_048_576
     logger.info("wrote %s (%.2f MB, %d corridors)", out_path, size_mb, len(corridors))
 
-
 def write_meta_json(meta: dict[str, Any], out_path: Path = config.META_JSON) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w") as fh:
@@ -355,9 +336,7 @@ def write_meta_json(meta: dict[str, Any], out_path: Path = config.META_JSON) -> 
     logger.info("wrote %s", out_path)
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -374,7 +353,7 @@ def main(argv: list[str] | None = None) -> int:
     panel = tci.corridor_period_tci(df)
     providers = tci.latest_provider_breakdown(df)
 
-    # Stablecoin counterfactual + bilateral volumes (Phase 3)
+
     try:
         savings_table, savings_summary = stablecoin.compute()
     except FileNotFoundError as exc:
@@ -390,7 +369,7 @@ def main(argv: list[str] | None = None) -> int:
     write_corridors_json(corridors, meta)
     write_meta_json(meta)
 
-    # Phase 4 outputs: regression + diaspora burden aggregation
+
     if savings_table is not None:
         burden_payload = aggregate.build_payload(savings_table)
         aggregate.write_json(burden_payload)
@@ -400,7 +379,6 @@ def main(argv: list[str] | None = None) -> int:
     reg_results = regression.fit_all()
     regression.write_regression_json(reg_results)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

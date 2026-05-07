@@ -17,9 +17,9 @@ from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Emu, Inches, Pt
 
-# ---------------------------------------------------------------------------
-# Design tokens (mirror the dashboard palette)
-# ---------------------------------------------------------------------------
+
+
+
 BG = RGBColor(0x0A, 0x0A, 0x0A)
 SURFACE = RGBColor(0x14, 0x14, 0x14)
 BORDER = RGBColor(0x24, 0x24, 0x24)
@@ -40,9 +40,8 @@ META_PATH = ROOT / "data" / "outputs" / "meta.json"
 OUT = ROOT / "report" / "MigrantMoney_Presentation.pptx"
 
 
-# ---------------------------------------------------------------------------
-# Presentation skeleton
-# ---------------------------------------------------------------------------
+
+
 prs = Presentation()
 prs.slide_width = Inches(13.333)
 prs.slide_height = Inches(7.5)
@@ -50,7 +49,6 @@ prs.slide_height = Inches(7.5)
 W = prs.slide_width
 H = prs.slide_height
 BLANK = prs.slide_layouts[6]
-
 
 def add_slide():
     """Create a fresh black-background slide."""
@@ -60,7 +58,6 @@ def add_slide():
     bg.fill.fore_color.rgb = BG
     bg.line.fill.background()
     return s
-
 
 def text(
     slide,
@@ -101,11 +98,9 @@ def text(
     run.font.italic = italic
     return tb
 
-
 def overline(slide, x, y, content, *, color=TEXT_3):
     return text(slide, x, y, Inches(10), Inches(0.3), content,
                 size=10, color=color, font=MONO)
-
 
 def divider(slide, x, y, length, color=BORDER, weight=0.6):
     """Hairline rule."""
@@ -114,7 +109,6 @@ def divider(slide, x, y, length, color=BORDER, weight=0.6):
     ln.line.width = Pt(weight)
     return ln
 
-
 def page_chrome(slide, page_no, total, section):
     """Top-of-slide rule + tiny page indicator + section overline."""
     overline(slide, Inches(0.85), Inches(0.55), section)
@@ -122,7 +116,6 @@ def page_chrome(slide, page_no, total, section):
          f"{page_no:02d} / {total:02d}",
          size=10, color=TEXT_3, font=MONO, align=PP_ALIGN.RIGHT)
     divider(slide, Inches(0.85), Inches(0.95), Inches(11.65))
-
 
 def figure(slide, fig_name, *, top=Inches(2.3), max_w=Inches(10.5),
            max_h=Inches(4.6), card=True):
@@ -150,7 +143,6 @@ def figure(slide, fig_name, *, top=Inches(2.3), max_w=Inches(10.5),
     slide.shapes.add_picture(str(p), left, top, width=target_w, height=target_h)
 
 
-# Load meta for headline numbers
 META = json.loads(META_PATH.read_text())
 g = META["global_savings"]
 TOTAL_VOLUME_B = g["total_corridor_volume_usd"] / 1e9
@@ -166,28 +158,27 @@ PERIOD_FROM = META["panel_first_period"].replace("_", " ")
 PERIOD_TO = META["panel_last_period"].replace("_", " ")
 
 
-# Total slide count for page numbers
 TOTAL = 18
 
-# ---------------------------------------------------------------------------
-# Slide 1 — Title
-# ---------------------------------------------------------------------------
+
+
+
 s = add_slide()
 overline(s, Inches(0.85), Inches(0.55),
          "FUNDAMENTALS OF DATA SCIENCE  ·  BITS PILANI DUBAI  ·  2026")
 divider(s, Inches(0.85), Inches(0.95), Inches(11.65))
 
-# Hero
+
 text(s, Inches(0.85), Inches(2.45), Inches(12.0), Inches(2.4),
      "MigrantMoney",
      size=110, color=TEXT, font=DISPLAY, bold=True)
 
-# Subhead
+
 text(s, Inches(0.85), Inches(4.55), Inches(11.5), Inches(0.6),
      "A True Cost Index and stablecoin counterfactual for the global remittance market.",
      size=22, color=TEXT_2, font=BODY)
 
-# Footer
+
 divider(s, Inches(0.85), Inches(6.6), Inches(11.65))
 text(s, Inches(0.85), Inches(6.78), Inches(6), Inches(0.4),
      "RONIT DHANSOIA",
@@ -197,9 +188,8 @@ text(s, Inches(7.0), Inches(6.78), Inches(5.5), Inches(0.4),
      size=10, color=TEXT_3, font=MONO, align=PP_ALIGN.RIGHT)
 
 
-# ---------------------------------------------------------------------------
-# Slide 2 — The question (hero number)
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 2, TOTAL, "01  ·  THE QUESTION")
 
@@ -219,9 +209,8 @@ text(s, Inches(0.85), Inches(6.6), Inches(12), Inches(0.4),
      size=11, color=TEXT_3, font=MONO)
 
 
-# ---------------------------------------------------------------------------
-# Slide 3 — The gap
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 3, TOTAL, "02  ·  THE GAP")
 
@@ -233,7 +222,7 @@ text(s, Inches(0.85), Inches(2.7), Inches(11), Inches(1.4),
      "Public reports treat fee and FX margin as separate columns. Speed isn't priced at all. No published metric unifies the three; we engineer one.",
      size=18, color=TEXT_2, font=BODY, line_spacing=1.4)
 
-# Three columns: fee, fx margin, speed penalty
+
 col_w = Inches(3.7)
 col_y = Inches(4.6)
 col_pad = Inches(0.35)
@@ -252,9 +241,8 @@ for x, label, desc in zip(xs, labels, descs):
          desc, size=15, color=TEXT_2, font=BODY, line_spacing=1.4)
 
 
-# ---------------------------------------------------------------------------
-# Slide 4 — Objectives
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 4, TOTAL, "03  ·  OBJECTIVES")
 
@@ -262,7 +250,7 @@ text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
      "Two outputs.",
      size=52, color=TEXT, font=DISPLAY, bold=True)
 
-# Objective 1
+
 text(s, Inches(0.85), Inches(3.1), Inches(0.5), Inches(0.5),
      "01", size=26, color=TEXT_3, font=MONO)
 text(s, Inches(1.7), Inches(3.05), Inches(11), Inches(0.7),
@@ -272,7 +260,7 @@ text(s, Inches(1.7), Inches(3.75), Inches(11), Inches(1.2),
      "A unified per-corridor cost number that combines fee, FX margin, and a speed penalty.",
      size=17, color=TEXT_2, font=BODY, line_spacing=1.4)
 
-# Objective 2
+
 text(s, Inches(0.85), Inches(5.3), Inches(0.5), Inches(0.5),
      "02", size=26, color=TEXT_3, font=MONO)
 text(s, Inches(1.7), Inches(5.25), Inches(11), Inches(0.7),
@@ -283,9 +271,8 @@ text(s, Inches(1.7), Inches(5.95), Inches(11), Inches(1.2),
      size=17, color=TEXT_2, font=BODY, line_spacing=1.4)
 
 
-# ---------------------------------------------------------------------------
-# Slide 5 — Dataset
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 5, TOTAL, "04  ·  DATASET")
 
@@ -297,7 +284,7 @@ text(s, Inches(0.85), Inches(2.55), Inches(11), Inches(0.6),
      f"Quarterly panel of corridor prices. {PERIOD_FROM} → {PERIOD_TO}.",
      size=18, color=TEXT_2, font=BODY)
 
-# Number grid 2x2
+
 def stat_block(slide, x, y, label, value, sub):
     text(slide, x, y, Inches(5.5), Inches(0.4), label,
          size=10, color=TEXT_3, font=MONO)
@@ -312,9 +299,8 @@ stat_block(s, Inches(0.85), Inches(5.55), "QUARTERS", f"{N_QUARTERS}", f"{PERIOD
 stat_block(s, Inches(7.0), Inches(5.55), "ROWS", f"{N_ROWS:,}", "after schema sniff and clean")
 
 
-# ---------------------------------------------------------------------------
-# Slide 6 — Pipeline (8 stages)
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 6, TOTAL, "05  ·  PIPELINE")
 
@@ -336,7 +322,7 @@ stages = [
     ("08", "FIGURES",     "Plotly  ·  300 DPI PNG for the report"),
 ]
 
-# Render two columns of 4 each
+
 y_start = Inches(3.45)
 row_h = Inches(0.62)
 for i, (num, name, desc) in enumerate(stages):
@@ -356,9 +342,8 @@ text(s, Inches(0.85), Inches(6.55), Inches(11.5), Inches(0.4),
      size=10, color=TEXT_3, font=MONO)
 
 
-# ---------------------------------------------------------------------------
-# Slide 7 — Data engineering
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 7, TOTAL, "06  ·  DATA ENGINEERING")
 
@@ -394,9 +379,8 @@ text(s, Inches(0.85), Inches(6.85), Inches(11.5), Inches(0.4),
      size=10, color=TEXT_3, font=MONO)
 
 
-# ---------------------------------------------------------------------------
-# Slide 8 — TCI formula
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 8, TOTAL, "07  ·  METHODOLOGY  ·  TRUE COST INDEX")
 
@@ -404,7 +388,7 @@ text(s, Inches(0.85), Inches(1.6), Inches(11.5), Inches(0.9),
      "True Cost Index.",
      size=44, color=TEXT, font=DISPLAY, bold=True)
 
-# Formula
+
 text(s, Inches(0.85), Inches(3.0), Inches(12), Inches(1.2),
      "TCI  =  fee%  +  fxMargin%  +  κ · max(0, days−1)",
      size=26, color=TEXT, font=MONO)
@@ -423,9 +407,8 @@ text(s, Inches(0.85), Inches(5.82), Inches(11.5), Inches(0.5),
      size=15, color=TEXT_2, font=BODY)
 
 
-# ---------------------------------------------------------------------------
-# Slide 9 — Stablecoin model
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 9, TOTAL, "08  ·  METHODOLOGY  ·  STABLECOIN")
 
@@ -457,9 +440,8 @@ text(s, Inches(0.85), Inches(6.28), Inches(11.5), Inches(0.5),
      size=14, color=TEXT_3, font=BODY, italic=True)
 
 
-# ---------------------------------------------------------------------------
-# Slide 10 — Regression spec
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 10, TOTAL, "09  ·  METHODOLOGY  ·  REGRESSION")
 
@@ -485,9 +467,8 @@ text(s, Inches(0.85), Inches(6.15), Inches(11.5), Inches(0.5),
      size=18, color=TEXT_2, font=BODY)
 
 
-# ---------------------------------------------------------------------------
-# Slide 11 — Architecture diagram
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 11, TOTAL, "10  ·  ARCHITECTURE")
 
@@ -498,9 +479,8 @@ text(s, Inches(0.85), Inches(1.25), Inches(11.5), Inches(0.7),
 figure(s, "architecture.png", top=Inches(2.15), max_w=Inches(10.5), max_h=Inches(4.9), card=True)
 
 
-# ---------------------------------------------------------------------------
-# Slide 12 — Top corridors
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 12, TOTAL, "11  ·  RESULTS  ·  COSTS")
 
@@ -514,9 +494,8 @@ text(s, Inches(0.85), Inches(1.85), Inches(11.5), Inches(0.4),
 figure(s, "fig01_top20_corridors.png", top=Inches(2.45), max_w=Inches(10.0), max_h=Inches(4.7))
 
 
-# ---------------------------------------------------------------------------
-# Slide 13 — Regression forest plot
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 13, TOTAL, "12  ·  RESULTS  ·  OPERATORS")
 
@@ -530,9 +509,8 @@ text(s, Inches(0.85), Inches(1.85), Inches(11.5), Inches(0.4),
 figure(s, "fig03_operator_forest.png", top=Inches(2.45), max_w=Inches(10.0), max_h=Inches(4.7))
 
 
-# ---------------------------------------------------------------------------
-# Slide 14 — Stablecoin scatter
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 14, TOTAL, "13  ·  RESULTS  ·  STABLECOIN")
 
@@ -546,9 +524,8 @@ text(s, Inches(0.85), Inches(1.85), Inches(11.5), Inches(0.4),
 figure(s, "fig04_stablecoin_scatter.png", top=Inches(2.45), max_w=Inches(10.0), max_h=Inches(4.7))
 
 
-# ---------------------------------------------------------------------------
-# Slide 15 — Diaspora burden
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 15, TOTAL, "14  ·  RESULTS  ·  DIASPORA")
 
@@ -562,9 +539,8 @@ text(s, Inches(0.85), Inches(1.85), Inches(11.5), Inches(0.4),
 figure(s, "fig05_diaspora_burden.png", top=Inches(2.45), max_w=Inches(10.0), max_h=Inches(4.7))
 
 
-# ---------------------------------------------------------------------------
-# Slide 16 — Robustness
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 16, TOTAL, "15  ·  ROBUSTNESS")
 
@@ -598,9 +574,8 @@ for i, (num, name, desc) in enumerate(checks):
          desc, size=13, color=TEXT_2, font=BODY)
 
 
-# ---------------------------------------------------------------------------
-# Slide 17 — Limitations
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 17, TOTAL, "16  ·  LIMITATIONS")
 
@@ -625,9 +600,8 @@ for label, body in items:
     y += Inches(0.78)
 
 
-# ---------------------------------------------------------------------------
-# Slide 18 — Demo / Q&A
-# ---------------------------------------------------------------------------
+
+
 s = add_slide()
 page_chrome(s, 18, TOTAL, "17  ·  DEMO  ·  Q&A")
 
@@ -647,9 +621,8 @@ text(s, Inches(0.85), Inches(6.5), Inches(11.5), Inches(0.4),
      size=11, color=TEXT_3, font=MONO)
 
 
-# ---------------------------------------------------------------------------
-# Save
-# ---------------------------------------------------------------------------
+
+
 OUT.parent.mkdir(parents=True, exist_ok=True)
 prs.save(OUT)
 print(f"wrote {OUT}  ({OUT.stat().st_size / 1024:.0f} KB, {len(prs.slides)} slides)")

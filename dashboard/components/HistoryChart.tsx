@@ -8,8 +8,6 @@ interface HistoryChartProps {
   history: CorridorHistoryPoint[];
 }
 
-// Compact line chart of TCI over quarters with hover dot. No grid, no axis
-// lines, no Recharts.
 interface DefinedPoint {
   period: string | null;
   tci_pct: number;
@@ -60,7 +58,7 @@ export function HistoryChart({ history }: HistoryChartProps) {
         preserveAspectRatio="none"
         onMouseLeave={() => setHoverIdx(null)}
       >
-        {/* Y axis ticks: text only, no line */}
+        {}
         {ticksY.map((t) => {
           const y = padT + (1 - (t - yMin) / range) * innerH;
           return (
@@ -87,7 +85,7 @@ export function HistoryChart({ history }: HistoryChartProps) {
           );
         })}
 
-        {/* Line */}
+        {}
         <path
           d={linePath}
           fill="none"
@@ -97,14 +95,14 @@ export function HistoryChart({ history }: HistoryChartProps) {
           strokeLinejoin="round"
         />
 
-        {/* Endpoint dot */}
+        {}
         <circle
           cx={xs[xs.length - 1]}
           cy={ys[ys.length - 1]}
           r={3}
           fill="var(--color-accent)"
         />
-        {/* Endpoint label */}
+        {}
         <text
           x={xs[xs.length - 1] - 6}
           y={ys[ys.length - 1] - 8}
@@ -116,7 +114,7 @@ export function HistoryChart({ history }: HistoryChartProps) {
           {fmtPct(data[data.length - 1].tci_pct, 2)}
         </text>
 
-        {/* Hover layer */}
+        {}
         {data.map((_, i) => (
           <rect
             key={i}

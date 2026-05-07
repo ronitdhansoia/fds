@@ -11,9 +11,9 @@ interface Option {
 
 interface CorridorPickerProps {
   current: { source: Option; destination: Option };
-  /** Map of source ISO3 -> available destination options (ordered alphabetically). */
+
   destinationsBySource: Record<string, Option[]>;
-  /** All sender ISO3s with at least one corridor. */
+
   senders: Option[];
   amount: 200 | 500;
 }
@@ -29,8 +29,8 @@ export function CorridorPicker({
   const [dst, setDst] = useState(current.destination.code);
   const [amt, setAmt] = useState<200 | 500>(amount);
 
-  // Reset destination when source changes if the current destination is no
-  // longer reachable from this source.
+
+
   useEffect(() => {
     const valid = destinationsBySource[src] ?? [];
     if (!valid.find((d) => d.code === dst)) {
@@ -39,7 +39,7 @@ export function CorridorPicker({
     }
   }, [src, dst, destinationsBySource]);
 
-  // Push a navigation when src/dst/amt actually changes from the URL state.
+
   useEffect(() => {
     if (src === current.source.code && dst === current.destination.code && amt === amount) return;
     const id = `${src}-${dst}`;
@@ -51,7 +51,7 @@ export function CorridorPicker({
 
   return (
     <div className="sticky top-12 z-20 border-y border-border bg-bg">
-      {/* Desktop / tablet: single horizontal row */}
+      {}
       <div className="mx-auto hidden md:flex max-w-[1280px] items-center gap-6 px-6 py-4">
         <Slot label="Send from">
           <Select value={src} onChange={setSrc} options={senders} />
@@ -66,7 +66,7 @@ export function CorridorPicker({
         </div>
       </div>
 
-      {/* Mobile: stacked rows separated by hairlines so each slot has room */}
+      {}
       <div className="md:hidden">
         <div className="border-b border-border px-6 py-3">
           <div className="overline mb-1">Send from</div>

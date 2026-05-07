@@ -36,16 +36,14 @@ from pipeline import config, tci
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Specification
-# ---------------------------------------------------------------------------
+
+
 
 REFERENCE_FIRM_TYPE: str = config.REGRESSION_REFERENCE_FIRM_TYPE
 ALL_FIRM_TYPES: tuple[str, ...] = config.FIRM_TYPE_CANONICAL
 TREATMENT_FIRM_TYPES: tuple[str, ...] = tuple(
     ft for ft in ALL_FIRM_TYPES if ft != REFERENCE_FIRM_TYPE
 )
-
 
 @dataclass
 class CoefficientRow:
@@ -56,9 +54,8 @@ class CoefficientRow:
     p_value: float
     ci_low_pct: float
     ci_high_pct: float
-    significance: str  # "***" / "**" / "*" / ""
+    significance: str
     n_observations_class: int
-
 
 def _significance_stars(p: float) -> str:
     if p < 0.01:
@@ -70,9 +67,7 @@ def _significance_stars(p: float) -> str:
     return ""
 
 
-# ---------------------------------------------------------------------------
-# Panel construction
-# ---------------------------------------------------------------------------
+
 
 
 def _prepare_panel(df: pd.DataFrame, send_amount_usd: int) -> pd.DataFrame:
@@ -96,7 +91,6 @@ def _prepare_panel(df: pd.DataFrame, send_amount_usd: int) -> pd.DataFrame:
     sub = sub.set_index(["corridor_id", "period_dt"]).sort_index()
     return sub
 
-
 def _design_matrix(
     panel: pd.DataFrame,
 ) -> tuple[pd.Series, pd.DataFrame, pd.Series]:
@@ -115,9 +109,7 @@ def _design_matrix(
     return y, X, None
 
 
-# ---------------------------------------------------------------------------
-# Fit + summarise
-# ---------------------------------------------------------------------------
+
 
 
 @dataclass
@@ -137,7 +129,6 @@ class RegressionResult:
     reference_class: str
     cluster_var: str
     notes: list[str]
-
 
 def fit_two_way_fe(
     df: pd.DataFrame, send_amount_usd: int
@@ -175,7 +166,7 @@ def fit_two_way_fe(
     for ft in TREATMENT_FIRM_TYPES:
         col = f"is_{ft}"
         if col not in params.index:
-            # PanelOLS dropped the dummy due to collinearity with the FE.
+
             continue
         est = float(params[col])
         s = float(se[col])
@@ -224,9 +215,7 @@ def fit_two_way_fe(
     )
 
 
-# ---------------------------------------------------------------------------
-# Output payload
-# ---------------------------------------------------------------------------
+
 
 
 def result_to_payload(res: RegressionResult) -> dict[str, Any]:
@@ -255,7 +244,6 @@ def result_to_payload(res: RegressionResult) -> dict[str, Any]:
         "notes": res.notes,
     }
 
-
 def write_regression_json(
     results: dict[int, RegressionResult],
     out_path: Path = config.OPERATOR_REGRESSION_JSON,
@@ -270,9 +258,7 @@ def write_regression_json(
     logger.info("wrote %s", out_path)
 
 
-# ---------------------------------------------------------------------------
-# Pretty-print
-# ---------------------------------------------------------------------------
+
 
 
 def print_summary(results: dict[int, RegressionResult]) -> None:
@@ -311,9 +297,7 @@ def print_summary(results: dict[int, RegressionResult]) -> None:
     print("=" * 86)
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+
 
 
 def fit_all(parquet_path: Path = config.PROCESSED_RPW_PATH) -> dict[int, RegressionResult]:
@@ -325,7 +309,6 @@ def fit_all(parquet_path: Path = config.PROCESSED_RPW_PATH) -> dict[int, Regress
     ):
         out[amount] = fit_two_way_fe(df, amount)
     return out
-
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Operator-class regression.")
@@ -342,7 +325,6 @@ def main(argv: list[str] | None = None) -> int:
     if args.write_json:
         write_regression_json(results)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

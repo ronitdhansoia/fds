@@ -32,12 +32,10 @@ from pipeline import config, tci
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Bilateral Remittance Matrix loader
-# ---------------------------------------------------------------------------
+
+
 
 _DEST_PREFIX = "WB_KNOMAD_"
-
 
 def load_brm(path: Path = config.RAW_BRM_PATH) -> pd.DataFrame:
     """Flatten the Data360 JSON into (source, dest, year, usd_millions) rows.
@@ -79,7 +77,6 @@ def load_brm(path: Path = config.RAW_BRM_PATH) -> pd.DataFrame:
     )
     return df
 
-
 def latest_corridor_volumes(brm: pd.DataFrame) -> pd.DataFrame:
     """One row per corridor with the most recent volume estimate."""
     idx = brm.groupby("corridor_id")["year"].idxmax()
@@ -90,9 +87,7 @@ def latest_corridor_volumes(brm: pd.DataFrame) -> pd.DataFrame:
     )
 
 
-# ---------------------------------------------------------------------------
-# Stablecoin cost model
-# ---------------------------------------------------------------------------
+
 
 
 @dataclass(frozen=True)
@@ -102,7 +97,6 @@ class StablecoinBreakdown:
     gas_pct: float
     fx_spread_pct: float
     total_pct: float
-
 
 def stablecoin_cost(
     source_iso3: str, dest_iso3: str, send_amount_usd: float
@@ -120,7 +114,6 @@ def stablecoin_cost(
         fx_spread_pct=fx_spread,
         total_pct=total,
     )
-
 
 def stablecoin_cost_frame(
     corridor_keys: pd.DataFrame, send_amount_usd: float
@@ -145,9 +138,7 @@ def stablecoin_cost_frame(
     )
 
 
-# ---------------------------------------------------------------------------
-# Combine TCI snapshot + stablecoin + volumes -> savings
-# ---------------------------------------------------------------------------
+
 
 
 def build_savings_table(
@@ -174,12 +165,12 @@ def build_savings_table(
             merged["tci_pct_mean"].astype(float) - merged["sc_total_pct"].astype(float)
         ).clip(lower=0.0)
 
-        # Conservative savings using rolling 4q average (reduces noise).
+
         merged["savings_pct_r4"] = (
             merged["tci_pct_mean_r4"].astype(float) - merged["sc_total_pct"].astype(float)
         ).clip(lower=0.0)
 
-        # Match volumes (BRM is corridor-level, not amount-specific).
+
         vol = latest_corridor_volumes(brm)
         merged = merged.merge(
             vol[["corridor_id", "volume_year", "volume_usd_annual"]],
@@ -195,16 +186,14 @@ def build_savings_table(
             * merged["volume_usd_annual"].astype(float)
         )
 
-        # Normalised send-amount column for downstream join.
+
         merged["send_amount_usd"] = amount
         out_frames.append(merged)
 
     return pd.concat(out_frames, ignore_index=True)
 
 
-# ---------------------------------------------------------------------------
-# Global aggregates
-# ---------------------------------------------------------------------------
+
 
 
 def global_savings_summary(savings: pd.DataFrame) -> dict[str, object]:
@@ -237,7 +226,6 @@ def global_savings_summary(savings: pd.DataFrame) -> dict[str, object]:
         ),
     }
 
-
 def by_sending_country_burden(
     savings: pd.DataFrame, top_n: int = 10
 ) -> pd.DataFrame:
@@ -266,9 +254,7 @@ def by_sending_country_burden(
     return out
 
 
-# ---------------------------------------------------------------------------
-# Pretty print
-# ---------------------------------------------------------------------------
+
 
 
 def _fmt_usd_b(x: float) -> str:
@@ -276,12 +262,10 @@ def _fmt_usd_b(x: float) -> str:
         return "n/a"
     return f"${x / 1e9:>6.2f} B"
 
-
 def _fmt_usd_m(x: float) -> str:
     if x is None or np.isnan(x):
         return "n/a"
     return f"${x / 1e6:>9.1f} M"
-
 
 def print_summary(savings: pd.DataFrame) -> None:
     head = int(config.HEADLINE_SEND_AMOUNT_USD)
@@ -352,9 +336,7 @@ def print_summary(savings: pd.DataFrame) -> None:
     print("=" * 86)
 
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+
 
 
 def compute(
@@ -370,7 +352,6 @@ def compute(
     summary = global_savings_summary(savings)
     return savings, summary
 
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Compute stablecoin savings.")
     parser.add_argument("-v", "--verbose", action="store_true")
@@ -383,7 +364,6 @@ def main(argv: list[str] | None = None) -> int:
     savings, _summary = compute()
     print_summary(savings)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

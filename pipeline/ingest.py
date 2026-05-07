@@ -46,10 +46,9 @@ from pipeline.config import (
 
 logger = logging.getLogger(__name__)
 
-CHUNK_BYTES = 1 << 16  # 64 KiB
-HTTP_TIMEOUT_S = (15, 300)  # connect, read
+CHUNK_BYTES = 1 << 16
+HTTP_TIMEOUT_S = (15, 300)
 USER_AGENT = "MigrantMoney/0.1 (BITS Pilani FDS project; +https://example.invalid)"
-
 
 def _stream_download(url: str, dest: Path) -> tuple[int, str]:
     """Stream a URL to disk. Returns (bytes_written, sha256)."""
@@ -78,7 +77,6 @@ def _stream_download(url: str, dest: Path) -> tuple[int, str]:
     tmp.replace(dest)
     return bytes_written, sha.hexdigest()
 
-
 def download_rpw(dest: Path = RAW_RPW_PATH, force: bool = False) -> Path:
     """Fetch the RPW xlsx, falling back to the secondary mirror on failure."""
     ensure_dirs()
@@ -105,7 +103,6 @@ def download_rpw(dest: Path = RAW_RPW_PATH, force: bool = False) -> Path:
         )
         return dest
     raise RuntimeError(f"all RPW download URLs failed: last error={last_err!r}")
-
 
 def download_bilateral_remittances(
     dest: Path = RAW_BRM_PATH,
@@ -165,7 +162,6 @@ def download_bilateral_remittances(
     logger.info("wrote %s (%.0f KB, %d records)", dest, dest.stat().st_size / 1024, len(records))
     return dest
 
-
 def _build_argparser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(description="Download RPW xlsx + bilateral remittance matrix.")
     p.add_argument(
@@ -178,7 +174,6 @@ def _build_argparser() -> argparse.ArgumentParser:
     p.add_argument("-v", "--verbose", action="store_true")
     return p
 
-
 def main(argv: list[str] | None = None) -> int:
     args = _build_argparser().parse_args(argv)
     logging.basicConfig(
@@ -190,7 +185,6 @@ def main(argv: list[str] | None = None) -> int:
     if args.only in ("brm", "both"):
         download_bilateral_remittances(force=args.force)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

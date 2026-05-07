@@ -23,7 +23,7 @@ export default async function MethodologyPage() {
   const a = meta.stablecoin_assumptions;
   const headlineAmount = String(meta.headline_send_amount_usd);
 
-  // Build the slim corridor projection for the sensitivity client component.
+
   const sensitivityCorridors: SensitivityCorridor[] = [];
   for (const c of corridors) {
     const bucket = c.amounts[headlineAmount];
@@ -46,7 +46,7 @@ export default async function MethodologyPage() {
     pipeline_savings_usd: meta.global_savings?.total_savings_usd_annual_current ?? 0,
   };
 
-  // Lead-sentence formatted dates from meta.
+
   const dataPeriodHuman = fmtPeriod(meta.panel_last_period);
   const generatedDate = new Date(meta.generated_at);
   const generatedMonthYear = generatedDate.toLocaleDateString("en-US", {
@@ -59,7 +59,7 @@ export default async function MethodologyPage() {
       <TopBar active="methodology" />
 
       <article className="mx-auto max-w-[680px] px-6 pt-24 pb-32">
-        {/* Overline + title block */}
+        {}
         <div className="overline">FDS PROJECT · BITS PILANI DUBAI · 2026</div>
 
         <h1 className="font-display text-section md:text-display mt-6 leading-[1.05] tracking-[-0.025em] text-text balance">
@@ -81,9 +81,9 @@ export default async function MethodologyPage() {
 
         <hr className="rule mt-12" />
 
-        {/* ---------------------------------------------------------------- */}
-        {/* True Cost Index */}
-        {/* ---------------------------------------------------------------- */}
+        {}
+        {}
+        {}
         <section id="tci" className="mt-12">
           <div className="overline">§1 · True Cost Index</div>
           <h2 className="font-display text-subhead mt-3 leading-[1.2] tracking-[-0.02em] text-text">
@@ -166,9 +166,9 @@ export default async function MethodologyPage() {
 
         <hr className="rule mt-16" />
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Stablecoin counterfactual */}
-        {/* ---------------------------------------------------------------- */}
+        {}
+        {}
+        {}
         <section id="stablecoin" className="mt-16">
           <div className="overline">§2 · Stablecoin counterfactual</div>
           <h2 className="font-display text-subhead mt-3 leading-[1.2] tracking-[-0.02em] text-text">
@@ -276,9 +276,9 @@ export default async function MethodologyPage() {
 
         <hr className="rule mt-16" />
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Regression */}
-        {/* ---------------------------------------------------------------- */}
+        {}
+        {}
+        {}
         <section id="regression" className="mt-16">
           <div className="overline">§3 · Operator-class regression</div>
           <h2 className="font-display text-subhead mt-3 leading-[1.2] tracking-[-0.02em] text-text">
@@ -311,9 +311,9 @@ export default async function MethodologyPage() {
 
         <hr className="rule mt-16" />
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Data sources */}
-        {/* ---------------------------------------------------------------- */}
+        {}
+        {}
+        {}
         <section id="sources" className="mt-16">
           <div className="overline">§4 · Data sources</div>
           <h2 className="font-display text-subhead mt-3 leading-[1.2] tracking-[-0.02em] text-text">
@@ -355,9 +355,9 @@ export default async function MethodologyPage() {
 
         <hr className="rule mt-16" />
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Limitations */}
-        {/* ---------------------------------------------------------------- */}
+        {}
+        {}
+        {}
         <section id="limitations" className="mt-16">
           <div className="overline">§5 · Limitations</div>
           <h2 className="font-display text-subhead mt-3 leading-[1.2] tracking-[-0.02em] text-text">
@@ -417,10 +417,10 @@ export default async function MethodologyPage() {
 
         <hr className="rule mt-16" />
 
-        {/* ---------------------------------------------------------------- */}
-        {/* Sensitivity sliders. Heading stays in the 680 px reading column;   */}
-        {/* the widget breaks out below for the side-by-side layout.          */}
-        {/* ---------------------------------------------------------------- */}
+        {}
+        {}
+        {}
+        {}
         <section id="sensitivity" className="mt-16">
           <div className="overline">§6 · Test the assumptions</div>
           <h2 className="font-display text-subhead mt-3 leading-[1.2] tracking-[-0.02em] text-text">
@@ -436,8 +436,7 @@ export default async function MethodologyPage() {
         </section>
       </article>
 
-      {/* Wider container. Escapes the 680 px reading column for the slider
-          panel side-by-side layout. Returns to the prose width below. */}
+      {}
       <div className="mx-auto max-w-[1024px] px-6 mt-12">
         <SensitivitySliders
           corridors={sensitivityCorridors}

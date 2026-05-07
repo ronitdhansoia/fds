@@ -6,16 +6,16 @@ export interface TCIBarProps {
   fee: number;
   fxMargin: number;
   speedPenalty: number;
-  /** SC counterfactual TCI shown beneath as a comparison row. */
+
   scCost?: number;
-  /** Domain max. Defaults to 1.2× the actual sum so there's headroom. */
+
   domain?: number;
 }
 
-const COLOR_FEE = "#D97706"; // amber
+const COLOR_FEE = "#D97706";
 const COLOR_FX = "#A45905";
 const COLOR_SPEED = "#3F3F3F";
-const COLOR_SC = "#65A30D"; // moss green
+const COLOR_SC = "#65A30D";
 
 export function TCIBar({ fee, fxMargin, speedPenalty, scCost, domain }: TCIBarProps) {
   const total = fee + fxMargin + speedPenalty;
@@ -25,7 +25,7 @@ export function TCIBar({ fee, fxMargin, speedPenalty, scCost, domain }: TCIBarPr
 
   return (
     <div className="w-full">
-      {/* Traditional row */}
+      {}
       <Row
         label="TRADITIONAL"
         sub={`${total.toFixed(2)}%`}
@@ -38,7 +38,7 @@ export function TCIBar({ fee, fxMargin, speedPenalty, scCost, domain }: TCIBarPr
         animDur={t}
       />
 
-      {/* Stablecoin row */}
+      {}
       {typeof scCost === "number" ? (
         <Row
           label="STABLECOIN"
@@ -50,7 +50,7 @@ export function TCIBar({ fee, fxMargin, speedPenalty, scCost, domain }: TCIBarPr
         />
       ) : null}
 
-      {/* Savings annotation */}
+      {}
       {typeof scCost === "number" ? (
         <div className="mt-3 flex items-center gap-3">
           <div className="rule flex-1" />
@@ -106,7 +106,7 @@ function Row({
                 style={{ background: s.color, flex: "0 0 auto" }}
                 className="relative h-full"
               >
-                {/* Inline label inside segment if it has room */}
+                {}
                 {widthPct > 12 ? (
                   <span className="absolute inset-y-0 left-2 flex items-center font-mono text-overline tracking-[0.18em] uppercase text-bg/90 whitespace-nowrap">
                     {s.label} · {s.value.toFixed(2)}

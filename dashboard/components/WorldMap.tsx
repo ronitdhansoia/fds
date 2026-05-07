@@ -10,11 +10,8 @@ import { M49_TO_ISO3 } from "@/lib/m49";
 import type { SenderRow } from "@/lib/data";
 import { fmtPct, fmtUsdCompact } from "@/lib/format";
 
-// Discrete 5-step amber ramp. Step 0 is for "no data".
 const RAMP = ["#161616", "#3D2A12", "#7A4F1A", "#B85F0A", "#D97706"] as const;
 
-// Discrete burden thresholds (USD billions) tuned by hand from the data.
-// 0..0.05 → 1, 0.05..0.5 → 2, 0.5..2 → 3, 2+ → 4.
 function bucket(burdenB: number | null): number {
   if (burdenB === null || burdenB <= 0) return 0;
   if (burdenB < 0.05) return 1;
@@ -26,7 +23,7 @@ function bucket(burdenB: number | null): number {
 interface WorldMapProps {
   senders: SenderRow[];
   topojsonUrl?: string;
-  /** Approximate aspect (defaults to 1.55, natural earth at full width). */
+
   aspect?: number;
 }
 
@@ -56,7 +53,7 @@ export function WorldMap({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [width, setWidth] = useState(960);
 
-  // Build a fast lookup from sender ISO3 -> SenderRow + burden.
+
   const senderByIso3 = useMemo(() => {
     const m = new Map<string, SenderRow>();
     for (const s of senders) {
@@ -65,7 +62,7 @@ export function WorldMap({
     return m;
   }, [senders]);
 
-  // Fetch topojson once on mount.
+
   useEffect(() => {
     let cancelled = false;
     fetch(topojsonUrl)
@@ -81,7 +78,7 @@ export function WorldMap({
     };
   }, [topojsonUrl]);
 
-  // Track container width for responsive projection scaling.
+
   useEffect(() => {
     if (!containerRef.current) return;
     const el = containerRef.current;
@@ -102,7 +99,7 @@ export function WorldMap({
 
   const pathGen = useMemo(() => geoPath(projection), [projection]);
 
-  // Decorate every country feature with our datum.
+
   const data: Datum[] = useMemo(() => {
     if (!features) return [];
     return features.map((f) => {
@@ -141,11 +138,10 @@ export function WorldMap({
         className="cursor-map"
         onMouseLeave={() => setHover(null)}
       >
-        {/* Subtle ocean fill. The grain overlay continues over this via the
-            page-level overlay so we don't need a per-svg filter. */}
+        {}
         <rect width={width} height={height} fill="var(--color-bg)" />
 
-        {/* Faintly drop a horizon line where the map sits, gives it gravity */}
+        {}
         <line
           x1={0}
           y1={height - 1}
@@ -192,7 +188,7 @@ export function WorldMap({
         </g>
       </svg>
 
-      {/* Legend: bottom left, hairline */}
+      {}
       <div className="absolute bottom-3 left-0 flex items-center gap-3 font-mono text-overline tracking-[0.18em] uppercase text-text-3">
         <span>Annual fee burden</span>
         <div className="flex h-2 items-center gap-[2px]">
@@ -210,7 +206,7 @@ export function WorldMap({
         </span>
       </div>
 
-      {/* Custom tooltip */}
+      {}
       {hover ? (
         <Tooltip x={hover.x} y={hover.y} datum={hover.datum} containerWidth={width} />
       ) : null}
@@ -230,7 +226,7 @@ function Tooltip({
   containerWidth: number;
 }) {
   const offset = 16;
-  // Flip the tooltip to the left of the cursor when near the right edge.
+
   const placeRight = x + 280 < containerWidth;
   const tx = placeRight ? x + offset : x - offset;
 

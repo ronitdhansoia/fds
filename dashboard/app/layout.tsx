@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 import { Fraunces, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// Display: Fraunces. Variable axes opsz / SOFT / WONK exposed; we drive
-// them via font-variation-settings in CSS where needed. weight omitted to
-// let Next ship the full variable font (Next 16 requires this for axis use).
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
@@ -12,14 +9,12 @@ const fraunces = Fraunces({
   display: "swap",
 });
 
-// Body: Geist Sans (NOT Inter).
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-// Numerics: Geist Mono. Tabular figures enabled in CSS via font-feature-settings.
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
@@ -64,7 +59,7 @@ export default function RootLayout({
       className={`${fraunces.variable} ${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="bg-bg text-text antialiased min-h-screen">
-        {/* Subtle noise overlay: separates "designed" from "Tailwind defaults" */}
+        {}
         <div className="grain pointer-events-none fixed inset-0 z-[1]" aria-hidden />
         <div className="relative z-[2]">{children}</div>
       </body>

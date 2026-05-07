@@ -40,13 +40,11 @@ from pipeline import (  # noqa: E402  (sys.path tweak)
 
 logger = logging.getLogger("run_all")
 
-
 def _step(label: str) -> None:
     print()
     print("─" * 86)
     print(f"  ▸ {label}")
     print("─" * 86)
-
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="MigrantMoney end-to-end pipeline.")
@@ -70,7 +68,7 @@ def main(argv: list[str] | None = None) -> int:
     t0 = time.time()
     config.ensure_dirs()
 
-    # 1. Raw data
+
     _step("1/7 ingest — RPW xlsx + Bilateral Remittance Matrix")
     if not args.skip_download:
         ingest.download_rpw()
@@ -78,34 +76,34 @@ def main(argv: list[str] | None = None) -> int:
     else:
         logger.info("skip-download set — using cached raw data")
 
-    # 2. Preprocess
+
     _step("2/7 preprocess — schema sniff, melt cc1/cc2, derive fee/speed/TCI")
     df = preprocess.preprocess()
     df.to_parquet(config.PROCESSED_RPW_PATH, index=False)
     preprocess.print_summary(df)
 
-    # 3. TCI sanity
+
     _step("3/7 tci — top-20 corridor ranking")
     panel = tci.corridor_period_tci(df)
     snap = tci.latest_corridor_snapshot(panel)
     tci.print_top_n(snap, send_amount_usd=int(config.HEADLINE_SEND_AMOUNT_USD), n=20)
 
-    # 4. Stablecoin
+
     _step("4/7 stablecoin — counterfactual cost model + savings")
     savings, _ = stablecoin.compute()
     stablecoin.print_summary(savings)
 
-    # 5. Aggregations
+
     _step("5/7 aggregate — diaspora burden + global rankings")
     burden_payload = aggregate.build_payload(savings)
     aggregate.print_summary(burden_payload)
 
-    # 6. Regression
+
     _step("6/7 regression — operator-class two-way FE")
     reg_results = regression.fit_all()
     regression.print_summary(reg_results)
 
-    # 7. Export — write every JSON the dashboard reads
+
     _step("7/8 export — write corridors.json + meta.json + burden + regression")
     providers = tci.latest_provider_breakdown(df)
     summary_dict = stablecoin.global_savings_summary(savings)
@@ -116,7 +114,7 @@ def main(argv: list[str] | None = None) -> int:
     aggregate.write_json(burden_payload)
     regression.write_regression_json(reg_results)
 
-    # 8. Figures — render report PNGs
+
     if args.skip_figures:
         _step("8/8 figures — skipped (--skip-figures)")
     else:
@@ -133,7 +131,6 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  Pipeline complete in {elapsed:.1f} s. Outputs in data/outputs/ + report/figures/.")
     print("=" * 86)
     return 0
-
 
 if __name__ == "__main__":
     sys.exit(main())

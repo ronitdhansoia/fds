@@ -20,8 +20,8 @@ export default async function HomePage() {
   const totalSavings = burden.headline.total_sc_savings_usd;
   const matchedVolume = burden.headline.total_volume_usd;
 
-  // Build ticker items from the top corridors by absolute fee burden so the
-  // strip cycles through high-volume, high-stake corridors.
+
+
   const headlineAmount = String(meta.headline_send_amount_usd);
   const corridorById = new Map(corridors.map((c) => [c.id, c]));
   const tickerItems: TickerItem[] = [];
@@ -47,11 +47,11 @@ export default async function HomePage() {
     <main>
       <TopBar active="home" />
 
-      {/* ----------------------------------------------------------------- */}
-      {/* HERO                                                                */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <section className="relative">
-        {/* warm shadow only under the hero, applied once, nothing else */}
+        {}
         <div className="hero-shadow pointer-events-none absolute inset-x-0 bottom-0 top-1/2 -z-[1]" aria-hidden />
 
         <div className="mx-auto grid max-w-[1280px] grid-cols-12 gap-6 px-6 pt-32 pb-32">
@@ -134,9 +134,9 @@ export default async function HomePage() {
 
       <hr className="rule mx-auto max-w-[1280px]" />
 
-      {/* ----------------------------------------------------------------- */}
-      {/* WORLD MAP                                                           */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <Section
         overline="§1 · Where the burden falls"
         title={
@@ -161,9 +161,9 @@ export default async function HomePage() {
         </p>
       </Section>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* TWO TABLES SIDE BY SIDE                                             */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <section className="mx-auto mt-32 grid max-w-[1280px] grid-cols-12 gap-x-6 gap-y-12 px-6">
         <header className="col-span-12 lg:col-span-3">
           <div className="overline">§2 · Rankings</div>
@@ -220,9 +220,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* REGRESSION CALLOUT                                                  */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <Section
         overline="§3 · Who charges most"
         title={
@@ -280,9 +280,9 @@ export default async function HomePage() {
         </p>
       </Section>
 
-      {/* ----------------------------------------------------------------- */}
-      {/* CTA                                                                */}
-      {/* ----------------------------------------------------------------- */}
+      {}
+      {}
+      {}
       <section className="mx-auto mt-32 max-w-[1280px] px-6">
         <div className="grid grid-cols-12 gap-6 border-t border-border pt-12">
           <div className="col-span-12 md:col-span-3">

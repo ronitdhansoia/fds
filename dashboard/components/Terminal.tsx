@@ -17,10 +17,6 @@ import type {
   RegressionPayload,
 } from "@/lib/data";
 
-// ---------------------------------------------------------------------------
-// One line of buffered output. `in` is what the user typed (echoed with $).
-// `out` is normal output (text-2). `sys` is boot / banner text. `err` is amber.
-// ---------------------------------------------------------------------------
 type LineKind = "in" | "out" | "sys" | "err";
 type Line = { kind: LineKind; text: string };
 
@@ -48,12 +44,12 @@ export function Terminal({ corridors, regression, meta }: TerminalProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
 
-  // Always autoscroll to the prompt on new output.
+
   useEffect(() => {
     bodyRef.current?.scrollTo({ top: bodyRef.current.scrollHeight });
   }, [lines]);
 
-  // Click anywhere in the body refocuses the input.
+
   const focusInput = useCallback(() => {
     inputRef.current?.focus();
   }, []);
@@ -61,9 +57,9 @@ export function Terminal({ corridors, regression, meta }: TerminalProps) {
     focusInput();
   }, [focusInput]);
 
-  // -------------------------------------------------------------------------
-  // Pre-computed lookups so each command is O(1) on the lookup it needs.
-  // -------------------------------------------------------------------------
+
+
+
   const byId = useMemo(() => {
     const m = new Map<string, Corridor>();
     for (const c of corridors) m.set(c.id.toUpperCase(), c);
@@ -91,16 +87,16 @@ export function Terminal({ corridors, regression, meta }: TerminalProps) {
       .sort((a, b) => b.sv - a.sv);
   }, [corridors, sendKey]);
 
-  // -------------------------------------------------------------------------
-  // Rendering helpers. Padded strings keep the columns aligned in the mono
-  // body (whitespace-pre-wrap preserves the spaces).
-  // -------------------------------------------------------------------------
+
+
+
+
   const lpad = (s: string, n: number) => s + " ".repeat(Math.max(0, n - s.length));
   const rpad = (s: string, n: number) => " ".repeat(Math.max(0, n - s.length)) + s;
 
-  // -------------------------------------------------------------------------
-  // Commands. Each returns the lines to append to the buffer.
-  // -------------------------------------------------------------------------
+
+
+
 
   function cmdHelp(): Line[] {
     const COMMANDS: [string, string][] = [
@@ -426,9 +422,9 @@ export function Terminal({ corridors, regression, meta }: TerminalProps) {
     ];
   }
 
-  // -------------------------------------------------------------------------
-  // Dispatch
-  // -------------------------------------------------------------------------
+
+
+
   function run(raw: string): Line[] {
     const parts = raw.trim().split(/\s+/);
     const cmd = (parts[0] ?? "").toLowerCase();
@@ -512,7 +508,7 @@ export function Terminal({ corridors, regression, meta }: TerminalProps) {
       onClick={focusInput}
       className="rounded-[3px] border border-border bg-bg overflow-hidden"
     >
-      {/* header */}
+      {}
       <div className="grid grid-cols-3 items-center border-b border-border px-4 py-2.5">
         <div className="flex items-center gap-1.5 col-start-1">
           <span className="block w-[7px] h-[7px] rounded-full bg-text-3 opacity-50" aria-hidden />
@@ -537,7 +533,7 @@ export function Terminal({ corridors, regression, meta }: TerminalProps) {
         </button>
       </div>
 
-      {/* body */}
+      {}
       <div
         ref={bodyRef}
         className="px-6 py-5 h-[540px] overflow-y-auto font-mono text-label leading-[1.7] tabular-nums"
@@ -581,7 +577,7 @@ function LineView({ line }: { line: Line }) {
   if (line.kind === "err") {
     return <div className="text-accent whitespace-pre-wrap">{line.text}</div>;
   }
-  // sys + out
+
   return <div className="text-text-2 whitespace-pre-wrap">{line.text}</div>;
 }
 

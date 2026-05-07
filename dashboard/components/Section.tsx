@@ -1,10 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
-/**
- * Editorial section: left-rail title (~140 px) + right column body.
- * The rail collapses on mobile so the headline reads above the body.
- */
 export function Section({
   overline,
   title,

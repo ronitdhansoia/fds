@@ -12,10 +12,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { fmtUsdCompact } from "@/lib/format";
 
-/* --------------------------------------------------------------------- */
-/*  Types: minimal shape the recompute needs from corridors.json          */
-/* --------------------------------------------------------------------- */
-
 export interface SensitivityCorridor {
   id: string;
   tci_pct: number;
@@ -23,22 +19,21 @@ export interface SensitivityCorridor {
 }
 
 export interface SensitivityDefaults {
-  /** % of send amount */
+
   onramp_pct: number;
   offramp_pct: number;
-  /** USD per transfer (network gas), converted to a percentage at recompute time */
+
   gas_usd: number;
-  /** % of send amount */
+
   fx_spread_pct: number;
-  /** Pre-computed pipeline aggregate (tiered per-country logic), shown alongside
-   * the slider scenario as the "pipeline-precise" anchor. */
+
   pipeline_savings_usd: number;
 }
 
 interface SensitivitySlidersProps {
   corridors: SensitivityCorridor[];
   defaults: SensitivityDefaults;
-  /** Headline send amount (USD), e.g. 200; used to convert gas USD → %. */
+
   sendAmount: number;
 }
 
@@ -105,14 +100,10 @@ const PARAMS: ParamSpec[] = [
   },
 ];
 
-/* --------------------------------------------------------------------- */
-/*  Hook: URL-synced state                                                */
-/* --------------------------------------------------------------------- */
-
 function useUrlSyncedState(defaults: Record<ParamKey, number>) {
   const [state, setState] = useState<Record<ParamKey, number>>(defaults);
 
-  // Initial read of URL params (client only).
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const sp = new URLSearchParams(window.location.search);
@@ -129,12 +120,12 @@ function useUrlSyncedState(defaults: Record<ParamKey, number>) {
       }
     }
     if (changed) setState(next);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
-  // Debounce URL writes. Radix Slider fires onValueChange many times per
-  // second on drag, which trips Firefox's 100-call replaceState rate limit
-  // (and is wasteful in any browser). Only flush 350 ms after the last move.
+
+
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     const id = window.setTimeout(() => {
@@ -159,7 +150,7 @@ function useUrlSyncedState(defaults: Record<ParamKey, number>) {
       try {
         window.history.replaceState(null, "", next);
       } catch {
-        /* swallow rate-limit errors; the next debounce tick will retry. */
+
       }
     }, 350);
     return () => window.clearTimeout(id);
@@ -167,10 +158,6 @@ function useUrlSyncedState(defaults: Record<ParamKey, number>) {
 
   return [state, setState] as const;
 }
-
-/* --------------------------------------------------------------------- */
-/*  Recompute logic                                                       */
-/* --------------------------------------------------------------------- */
 
 function recompute(
   corridors: SensitivityCorridor[],
@@ -193,10 +180,6 @@ function recompute(
   return { total, nWithVol, nPositive, savingsPcts, scCost: sc };
 }
 
-/* --------------------------------------------------------------------- */
-/*  Component                                                             */
-/* --------------------------------------------------------------------- */
-
 export function SensitivitySliders({
   corridors,
   defaults,
@@ -212,7 +195,7 @@ export function SensitivitySliders({
 
   const baseline = useMemo(
     () => recompute(corridors, defaultRecord, sendAmount),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [corridors, sendAmount],
   );
   const live = useMemo(
@@ -220,18 +203,18 @@ export function SensitivitySliders({
     [corridors, params, sendAmount],
   );
 
-  // First-render verification: warn (dev only) if pipeline-precise and the
-  // slider-default-position scenario disagree by more than 0.1%. The two are
-  // expected to differ (pipeline uses per-country tiering, sliders apply a
-  // flat assumption), but we surface the gap so the reader sees it.
+
+
+
+
   useEffect(() => {
     const pipelineSavings = defaults.pipeline_savings_usd;
     if (!pipelineSavings) return;
     const gapPct = Math.abs(baseline.total - pipelineSavings) / pipelineSavings;
     if (gapPct > 0.001 && process.env.NODE_ENV === "development") {
-      // Diagnostic only. The gap is a documented design decision (flat
-      // sliders vs tiered pipeline). Don't pollute the prod console.
-      // eslint-disable-next-line no-console
+
+
+
       console.debug(
         `[SensitivitySliders] flat defaults give $${(baseline.total / 1e9).toFixed(2)}B vs ` +
           `pipeline-precise $${(pipelineSavings / 1e9).toFixed(2)}B (gap ${(gapPct * 100).toFixed(1)}%).`,
@@ -263,7 +246,7 @@ export function SensitivitySliders({
 
   return (
     <div className="grid grid-cols-12 gap-x-6 gap-y-10">
-      {/* -------- Sliders -------- */}
+      {}
       <div className="col-span-12 md:col-span-5 space-y-9">
         {PARAMS.map((p) => (
           <ParamSlider
@@ -282,9 +265,9 @@ export function SensitivitySliders({
         </button>
       </div>
 
-      {/* -------- Live readouts -------- */}
+      {}
       <div className="col-span-12 md:col-span-7 md:pl-8 md:border-l md:border-border space-y-10">
-        {/* Headline number */}
+        {}
         <div>
           <div className="overline">Global stablecoin savings · per year</div>
           <div className="mt-3 leading-[0.95]">
@@ -318,7 +301,7 @@ export function SensitivitySliders({
           </div>
         </div>
 
-        {/* Live formula */}
+        {}
         <div>
           <div className="overline">Live formula · stablecoin cost</div>
           <div className="mt-3 font-mono text-label leading-[1.85] tabular-nums">
@@ -343,7 +326,7 @@ export function SensitivitySliders({
           </div>
         </div>
 
-        {/* Coverage line */}
+        {}
         <div>
           <div className="overline">Robustness</div>
           <p className="mt-3 font-display text-body-lg text-text leading-snug pretty">
@@ -358,7 +341,7 @@ export function SensitivitySliders({
           </p>
         </div>
 
-        {/* Distribution */}
+        {}
         <div>
           <div className="overline">Distribution of per-corridor savings</div>
           <div className="mt-3">
@@ -369,10 +352,6 @@ export function SensitivitySliders({
     </div>
   );
 }
-
-/* --------------------------------------------------------------------- */
-/*  Custom Slider: every Radix part overridden                            */
-/* --------------------------------------------------------------------- */
 
 function ParamSlider({
   spec,
@@ -419,10 +398,6 @@ function ParamSlider({
     </div>
   );
 }
-
-/* --------------------------------------------------------------------- */
-/*  Distribution histogram                                                 */
-/* --------------------------------------------------------------------- */
 
 function SavingsHistogram({
   values,
@@ -480,7 +455,7 @@ function SavingsHistogram({
             />
           );
         })}
-        {/* Median hairline */}
+        {}
         {values.length > 0 ? (
           <line
             x1={(median / maxValue) * W}

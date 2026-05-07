@@ -14,8 +14,8 @@ export function ProviderList({
     );
   }
 
-  // Cap at 12 to keep things scannable; users wanting the full list can sort
-  // themselves. The data is pre-sorted ascending by tci_pct.
+
+
   const rows = providers.slice(0, 12);
   const max = Math.max(...providers.map((p) => p.tci_pct ?? 0), 1);
 

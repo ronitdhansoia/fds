@@ -1,14 +1,8 @@
-// Strict types matching the JSON shapes produced by pipeline/export.py and
-// pipeline/aggregate.py. Edit here when the pipeline schema changes; never
-// patch downstream components ad hoc.
+
 
 import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
-
-// ---------------------------------------------------------------------------
-// corridors.json
-// ---------------------------------------------------------------------------
 
 export interface CorridorCurrent {
   period: string | null;
@@ -156,10 +150,6 @@ export interface CorridorsPayload {
   corridors: Corridor[];
 }
 
-// ---------------------------------------------------------------------------
-// diaspora_burden.json
-// ---------------------------------------------------------------------------
-
 export interface SenderTopDestination {
   destination_code: string;
   destination_name: string | null;
@@ -238,10 +228,6 @@ export interface DiasporaBurden {
   };
 }
 
-// ---------------------------------------------------------------------------
-// operator_regression.json
-// ---------------------------------------------------------------------------
-
 export interface RegressionCoefficient {
   firm_type: string;
   estimate_pct: number;
@@ -283,12 +269,6 @@ export interface RegressionPayload {
   generated_at: string;
   models: Record<string, RegressionModel>;
 }
-
-// ---------------------------------------------------------------------------
-// Loaders. Server-only, read from /public/data at request time. We rely on
-// Next's static optimisation: every page that calls these is statically
-// rendered at build because nothing depends on the request.
-// ---------------------------------------------------------------------------
 
 const DATA_DIR = path.join(process.cwd(), "public", "data");
 
